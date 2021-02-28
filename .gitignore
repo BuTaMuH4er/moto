@@ -5,3 +5,4 @@ __pycache__/
 new_public_ssh.pub
 new_public_ssh
 env/
+.idea/
