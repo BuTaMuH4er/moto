@@ -1,0 +1,7 @@
+settings.py
+*.log
+.DS_Store
+__pycache__/
+new_public_ssh.pub
+new_public_ssh
+env/
