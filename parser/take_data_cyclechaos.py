@@ -34,6 +34,21 @@ def motorcycle_properties_BF4(file_name):
     return list_properties, str(bike_name)
 
 
+def export_to_json(data_input):
+    list_properties, bike_name = data_input
+    print(bike_name)
+    for properties in list_properties:
+        print(properties)
+    print('\n\n')
+
+
+def take_other_pages(file):
+    #функция вытаскивает данные, т.к. на некоторых страницах названия таблиц и разметка отличаются
+    page = open(file).read()
+    soup = BeautifulSoup(page, 'lxml')
+    prop = soup.find('table', class_='infobox h-product hproduct motorcycle')
+    return prop
+
 if __name__ == '__main__':
     list_files = os.listdir('pages_cyclechaos')
     os.chdir('pages_cyclechaos')
@@ -42,16 +57,14 @@ if __name__ == '__main__':
     for file in list_files:
         try:
             out_file = motorcycle_properties_BF4(file)
+            export_to_json(out_file)
         except UnicodeDecodeError:
             pass
         except AttributeError:
             count_attrer += 1
             pass
         except UnboundLocalError:
-            file = '9cc09f0e-7a15-11eb-9904-38f9d328d19b.json'
-            page = open(file).read()
-            soup = BeautifulSoup(page, 'lxml')
-            x = soup.find('table', class_ = 'infobox h-product hproduct motorcycle')
+            x = take_other_pages(file)
             if x:
                 count_unbonder += 1
             #break
