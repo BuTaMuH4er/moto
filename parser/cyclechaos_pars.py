@@ -1,8 +1,11 @@
 from bs4 import BeautifulSoup
 from lxml import html
-import requests, uuid, time
+import logging, requests, uuid, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
+logging.basicConfig(filename='cyclechaos_pars.log', level=logging.ERROR,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
 def get_list_brands(url):
     list_links = []
@@ -24,10 +27,11 @@ def get_list_brands(url):
 def download_file(url, file_name):
     try:
         html = requests.get(url, stream=True)
-        open(f'pages_cyclechaos/{file_name}.html', 'wb').write(html.content)
+        with open(f'pages_cyclechaos/{file_name}.html', 'wb') as data_file:
+            data_file.write(html.content)
         return html.status_code
     except requests.exceptions.RequestException as e:
-        return e
+        return logging.error(f'Request error while saving data {e}')
 
 
 def runner(url_list):
@@ -53,6 +57,7 @@ def write_list_links(name_file, data):
         file.write(data+'\n')
 
 if __name__ == '__main__':
+    logging.info('Parse start')
     cyclechaos = 'https://www.cyclechaos.com'
     all_motocycles = get_list_brands(cyclechaos) #all need links
     print(len(all_motocycles))
