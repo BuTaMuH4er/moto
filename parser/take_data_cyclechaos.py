@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
-import os
+import os, models
 from lxml import html
+
 
 def motorcycle_properties(file_name):
     page = open(file_name).read()
@@ -10,67 +11,105 @@ def motorcycle_properties(file_name):
 
 
 def motorcycle_properties_BF4(file_name):
+    print(f'{file}')
     list_properties = []
     page = open(file_name).read()
     soup = BeautifulSoup(page, 'lxml')
-    prop = soup.find('table', class_ = 'infobox h-product hproduct motorcycle').find('tbody').find_all('tr')
+    prop = soup.find('table', class_='infobox h-product hproduct motorcycle').find('tbody').find_all('tr')
     try:
-        bike_name = html.fromstring(page).xpath("/html/body/div[3]/div[3]/div[4]/div/table[1]/tbody/tr[2]/td/b/text()")[0]
+        bike_name = html.fromstring(page).xpath("/html/body/div[3]/div[3]/div[4]/div/table[1]/tbody/tr[2]/td/b/text()")[
+            0]
     except IndexError:
         pass
-    #print(bike_name)
+    # print(bike_name)
 
     """В цикле пробегаем по строчкам и достаем текст, условие позволяет вытащить только те свойства, 
     которые полные и имеют название. Имя мотоцикла вытаскивается отдельно."""
 
     for row in prop:
         x = [row.get_text(strip=True) for row in row.find_all('th')]
-        #print(x)
         y = [row.get_text(strip=True) for row in row.find_all('td')]
-        #print(y)
         if len(x) != 0 and len(y) != 0 and len(x[0]) > 0 and len(y[0]) > 0:
-            properties_scraped = [x[0],y[0]]
+            properties_scraped = [x[0], y[0]]
             list_properties.append(properties_scraped)
-    return list_properties, str(bike_name)
-
-
-def export_to_json(data_input):
-    list_properties, bike_name = data_input
-    print(bike_name)
-    for properties in list_properties:
-        print(properties)
-    print('\n\n')
+            if x[0] == 'Manufacturer':
+                brand_name = y[0]
+                model = bike_name.replace(str(brand_name), "").strip()
+                print(f'бренд и модель {brand_name, model}')
+    try:
+        return brand_name, model, list_properties
+    except UnboundLocalError:
+        pass
 
 
 def take_other_pages(file):
-    #функция вытаскивает данные, т.к. на некоторых страницах названия таблиц и разметка отличаются
+    print(f'{file}')
+    # функция вытаскивает данные, т.к. на некоторых страницах названия таблиц и разметка отличаются
+    list_properties = []
     page = open(file).read()
     soup = BeautifulSoup(page, 'lxml')
     prop = soup.find('table', class_='infobox h-product hproduct motorcycle')
-    return prop
+    # это из другой функции для теста
+    bike_name = soup.find('td', class_='fn p-name').get_text()
+    for row in prop.find('tbody').find_all('tr'):
+        x = [row.get_text(strip=True) for row in row.find_all('th')]
+        y = [row.get_text(strip=True) for row in row.find_all('td')]
+        if len(x) != 0 and len(y) != 0 and len(x[0]) > 0 and len(y[0]) > 0:
+            properties_scraped = [x[0], y[0]]
+            list_properties.append(properties_scraped)
+            if x[0] == 'Manufacturer':
+                brand_name = y[0]
+                model = bike_name.replace(str(brand_name), "").strip()
+                print(f'бренд и модель {brand_name, model}')
+    try:
+        return brand_name, model, list_properties
+    except UnboundLocalError:
+        pass
+
+
+def write_data_to_db(brand_name, model, list_properties):
+    #сюда мы должны передать бренд, модель + ТТХ, функция возвращает "класс" мотоцикл, в котором ТТХ
+    motocycle = models.Motocycle(brand_name, model)
+    for i in list_properties:
+        if i[0] == 'Production':
+            motocycle.year_birth = i[1]
+        if i[0] == 'Engine':
+            try:
+                motocycle.engine = int(''.join(filter(str.isdigit, i[1])))
+            except ValueError:
+                continue
+        if i[0] == 'Horsepower':
+            motocycle.horse_power = i[1]
+        if i[0] == 'Final Drive' or 'Final Drive' in i[1]:
+            if 'chain' in i[1].lower():
+                motocycle.gear_type = 'chain'
+            elif 'belt' in i[1].lower():
+                motocycle.gear_type = 'belt'
+            elif 'shaft' in i[1].lower():
+                motocycle.gear_type = 'shaft'
+        if 'carburetor' in i[1]:
+            motocycle.type_engine = 'carburetor'
+        if 'injection' in i[1]:
+            motocycle.type_engine = 'injection'
+        if 'Class' in i[0]:
+            motocycle.cycle_class = i[1]
+    return motocycle
+
 
 if __name__ == '__main__':
     list_files = os.listdir('pages_cyclechaos')
     os.chdir('pages_cyclechaos')
-    count_attrer = 0
-    count_unbonder = 0
     for file in list_files:
         try:
-            out_file = motorcycle_properties_BF4(file)
-            export_to_json(out_file)
+            brand_name, model, list_properties = motorcycle_properties_BF4(file)
+            write_data_to_db(brand_name, model, list_properties)
+        except TypeError:
+            pass
         except UnicodeDecodeError:
             pass
         except AttributeError:
-            count_attrer += 1
             pass
         except UnboundLocalError:
-            x = take_other_pages(file)
-            if x:
-                count_unbonder += 1
-            #break
-            pass
-    print(count_attrer, 'attr error')
-    print(count_unbonder, 'unbound error')
-        #motorcycle_properties(file)
-    #with open('pages_cyclechaos')
+            brand_name, model, list_properties = take_other_pages(file)
+            write_data_to_db(brand_name, model, list_properties)
 
