@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import os, models
 from lxml import html
+from db import db_session
+
 
 
 def motorcycle_properties(file_name):
@@ -11,8 +13,7 @@ def motorcycle_properties(file_name):
 
 
 def motorcycle_properties_BF4(file_name):
-    print(f'{file}')
-    list_properties = []
+    bike_name = False
     page = open(file_name).read()
     soup = BeautifulSoup(page, 'lxml')
     prop = soup.find('table', class_='infobox h-product hproduct motorcycle').find('tbody').find_all('tr')
@@ -21,50 +22,25 @@ def motorcycle_properties_BF4(file_name):
             0]
     except IndexError:
         pass
-    # print(bike_name)
 
     """В цикле пробегаем по строчкам и достаем текст, условие позволяет вытащить только те свойства, 
     которые полные и имеют название. Имя мотоцикла вытаскивается отдельно."""
-
-    for row in prop:
-        x = [row.get_text(strip=True) for row in row.find_all('th')]
-        y = [row.get_text(strip=True) for row in row.find_all('td')]
-        if len(x) != 0 and len(y) != 0 and len(x[0]) > 0 and len(y[0]) > 0:
-            properties_scraped = [x[0], y[0]]
-            list_properties.append(properties_scraped)
-            if x[0] == 'Manufacturer':
-                brand_name = y[0]
-                model = bike_name.replace(str(brand_name), "").strip()
-                print(f'бренд и модель {brand_name, model}')
-    try:
+    if bike_name:
+        brand_name, model, list_properties = collecting_rows_properties(prop, bike_name)
         return brand_name, model, list_properties
-    except UnboundLocalError:
-        pass
 
 
 def take_other_pages(file):
-    print(f'{file}')
+    bike_name = False
     # функция вытаскивает данные, т.к. на некоторых страницах названия таблиц и разметка отличаются
-    list_properties = []
     page = open(file).read()
     soup = BeautifulSoup(page, 'lxml')
-    prop = soup.find('table', class_='infobox h-product hproduct motorcycle')
-    # это из другой функции для теста
+    prop = soup.find('table', class_='infobox h-product hproduct motorcycle').find('tbody').find_all('tr')
     bike_name = soup.find('td', class_='fn p-name').get_text()
-    for row in prop.find('tbody').find_all('tr'):
-        x = [row.get_text(strip=True) for row in row.find_all('th')]
-        y = [row.get_text(strip=True) for row in row.find_all('td')]
-        if len(x) != 0 and len(y) != 0 and len(x[0]) > 0 and len(y[0]) > 0:
-            properties_scraped = [x[0], y[0]]
-            list_properties.append(properties_scraped)
-            if x[0] == 'Manufacturer':
-                brand_name = y[0]
-                model = bike_name.replace(str(brand_name), "").strip()
-                print(f'бренд и модель {brand_name, model}')
-    try:
+
+    if bike_name:
+        brand_name, model, list_properties = collecting_rows_properties(prop, bike_name)
         return brand_name, model, list_properties
-    except UnboundLocalError:
-        pass
 
 
 def write_data_to_db(brand_name, model, list_properties):
@@ -93,15 +69,42 @@ def write_data_to_db(brand_name, model, list_properties):
             motocycle.type_engine = 'injection'
         if 'Class' in i[0]:
             motocycle.cycle_class = i[1]
-    return motocycle
+    db_session.add(motocycle)
+    db_session.commit()
+
+
+def manufacturere_model(a, b, bike_name):
+    if a:
+        if a == 'Manufacturer':
+            brand_name = b
+            model = bike_name.replace(str(brand_name), "").strip()
+            return brand_name, model
+
+
+def collecting_rows_properties(prop, bike_name):
+    list_properties = []
+    for row in prop:
+        x = [row.get_text(strip=True) for row in row.find_all('th')]
+        y = [row.get_text(strip=True) for row in row.find_all('td')]
+        if len(x) != 0 and len(y) != 0 and len(x[0]) > 0 and len(y[0]) > 0:
+            properties_scraped = [x[0], y[0]]
+            list_properties.append(properties_scraped)
+            brand_name, model = manufacturere_model(x[0], y[0], bike_name)
+            if brand_name and model:
+                return brand_name, model, list_properties
 
 
 if __name__ == '__main__':
     list_files = os.listdir('pages_cyclechaos')
     os.chdir('pages_cyclechaos')
     for file in list_files:
+        unable_to_parse_as_chart = True
         try:
             brand_name, model, list_properties = motorcycle_properties_BF4(file)
+            if brand_name and model and list_properties:
+                unable_to_parse_as_chart = False
+            else:
+                brand_name, model, list_properties = take_other_pages(file)
             write_data_to_db(brand_name, model, list_properties)
         except TypeError:
             pass
@@ -109,7 +112,3 @@ if __name__ == '__main__':
             pass
         except AttributeError:
             pass
-        except UnboundLocalError:
-            brand_name, model, list_properties = take_other_pages(file)
-            write_data_to_db(brand_name, model, list_properties)
-
