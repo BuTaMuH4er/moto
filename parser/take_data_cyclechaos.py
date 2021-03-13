@@ -13,10 +13,11 @@ def motorcycle_properties(file_name):
 
 
 def motorcycle_properties_BF4(file_name):
+    print(file_name)
     bike_name = False
     page = open(file_name).read()
     soup = BeautifulSoup(page, 'lxml')
-    prop = soup.find('table', class_='infobox h-product hproduct motorcycle').find('tbody').find_all('tr')
+    prop = soup.find('table', class_='infobox h-product hproduct motorcycle').find('tbody') #сотрем .find_all('tr')
     try:
         bike_name = html.fromstring(page).xpath("/html/body/div[3]/div[3]/div[4]/div/table[1]/tbody/tr[2]/td/b/text()")[
             0]
@@ -35,7 +36,7 @@ def take_other_pages(file):
     # функция вытаскивает данные, т.к. на некоторых страницах названия таблиц и разметка отличаются
     page = open(file).read()
     soup = BeautifulSoup(page, 'lxml')
-    prop = soup.find('table', class_='infobox h-product hproduct motorcycle').find('tbody').find_all('tr')
+    prop = soup.find('table', class_='infobox h-product hproduct motorcycle').find('tbody')
     bike_name = soup.find('td', class_='fn p-name').get_text()
 
     if bike_name:
@@ -51,7 +52,9 @@ def write_data_to_db(brand_name, model, list_properties):
             motocycle.year_birth = i[1]
         if i[0] == 'Engine':
             try:
-                motocycle.engine = int(''.join(filter(str.isdigit, i[1])))
+                volume = int(''.join(filter(str.isdigit, i[1])))
+                if volume < 8001:
+                    motocycle.engine = volume
             except ValueError:
                 continue
         if i[0] == 'Horsepower':
@@ -73,25 +76,20 @@ def write_data_to_db(brand_name, model, list_properties):
     db_session.commit()
 
 
-def manufacturere_model(a, b, bike_name):
-    if a:
-        if a == 'Manufacturer':
-            brand_name = b
-            model = bike_name.replace(str(brand_name), "").strip()
-            return brand_name, model
-
-
 def collecting_rows_properties(prop, bike_name):
+    brand_name = False
     list_properties = []
-    for row in prop:
+    for row in prop.find_all('tr'):
         x = [row.get_text(strip=True) for row in row.find_all('th')]
         y = [row.get_text(strip=True) for row in row.find_all('td')]
         if len(x) != 0 and len(y) != 0 and len(x[0]) > 0 and len(y[0]) > 0:
             properties_scraped = [x[0], y[0]]
             list_properties.append(properties_scraped)
-            brand_name, model = manufacturere_model(x[0], y[0], bike_name)
-            if brand_name and model:
-                return brand_name, model, list_properties
+            if x[0] == 'Manufacturer':
+                brand_name = y[0]
+                model = bike_name.replace(str(brand_name), "").strip()
+    if brand_name and model:
+        return brand_name, model, list_properties
 
 
 if __name__ == '__main__':

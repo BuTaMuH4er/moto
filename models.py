@@ -11,7 +11,7 @@ class Motocycle(Base):
     brand_name = Column(String)
     model = Column(String(100))
     modifications = Column(String(300))
-    year_birth = Column(String(50))
+    year_birth = Column(String(150))
     engine = Column(SmallInteger)
     horse_power = Column(String(300))
     torque = Column(String(300))
@@ -23,6 +23,10 @@ class Motocycle(Base):
 
     def __repr__(self):
         return f'{self.brand_name} {self.model}'
+
+
+    def print_properties(self):
+        return f'{self.__dict__}'
 
 
 if __name__ == '__main__':
