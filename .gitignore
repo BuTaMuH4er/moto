@@ -1,4 +1,4 @@
-settings.py
+config.py
 *.log
 .DS_Store
 __pycache__/

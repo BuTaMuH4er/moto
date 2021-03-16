@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
-import os, models
+import os
+from api import model
 from lxml import html
-from db import db_session
+from db_settings import db_session
 
 
 
@@ -46,7 +47,7 @@ def take_other_pages(file):
 
 def write_data_to_db(brand_name, model, list_properties):
     #сюда мы должны передать бренд, модель + ТТХ, функция возвращает "класс" мотоцикл, в котором ТТХ
-    motocycle = models.Motocycle(brand_name, model)
+    motocycle = model.Motocycle(brand_name, model)
     for i in list_properties:
         if i[0] == 'Production':
             motocycle.year_birth = i[1]
