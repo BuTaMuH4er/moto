@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from db_settings import Base, engine_db
 
+
 db = SQLAlchemy()
 
 

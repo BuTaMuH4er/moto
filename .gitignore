@@ -1,4 +1,4 @@
-config.py
+api/config.py
 *.log
 .DS_Store
 __pycache__/
