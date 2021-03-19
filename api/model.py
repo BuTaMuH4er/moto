@@ -1,11 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from db_settings import Base, engine_db
-
+from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
 
-class Motocycle(db.Model):
+class Motocycle(db.Model, SerializerMixin):
     def __init__(self, brand_name, model):
         self.brand_name = brand_name
         self.model = model
