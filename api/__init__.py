@@ -10,4 +10,5 @@ def create_app():
     api = Api(app)
     db.init_app(app)
     api.add_resource(views.motocycles_API, '/')
+    api.add_resource(views.cycle_by_id, '/by_id/<int:id>')
     return app
