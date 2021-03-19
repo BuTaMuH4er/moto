@@ -9,5 +9,5 @@ def create_app():
     app.config.from_pyfile('config.py')
     api = Api(app)
     db.init_app(app)
-    api.add_resource(views.ProductAPI, '/')
+    api.add_resource(views.motocycles_API, '/')
     return app

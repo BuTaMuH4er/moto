@@ -6,12 +6,9 @@ import json
 
 
 
-class ProductAPI(Resource):
+class motocycles_API(Resource):
     def get(self):
-        dict_cycles = []
         motocycle = Motocycle.query.order_by(Motocycle.brand_name.desc()).all()
-        for moto in motocycle:
-            dict_cycles.append(moto.to_dict())
-        return dict_cycles
+        return [moto.to_dict() for moto in motocycle]
 
 
