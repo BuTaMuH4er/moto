@@ -5,8 +5,11 @@
     <title>Тест тест тест</title>
 </head>
 <body>
+        <table>
+            <tr><th>Производитель</th><th>модель</th><th>год производства</th></tr>
 {% for moto in motocycle %}
-<p><b>{{ moto.brand_name }}</b> <i>{{ moto.model }}</i></p>
+<p>{{ moto }}</p>
 {% endfor %}
+        </table>
 </body>
 </html>
