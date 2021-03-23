@@ -1,9 +1,5 @@
 from flask_restful import Resource, reqparse
 from api.model import db, Motocycle
-import json
-
-
-
 
 
 class motocycles_API(Resource):
@@ -25,3 +21,7 @@ class cycle_by_id(Resource):
         return {'error':'Wrong format "id"'}
 
 
+parser = reqparse.RequestParser()
+parser.add_argument('brand_name', type=str)
+parser.add_argument('model', type=str)
+parser.add_argument('engine', type=int)
