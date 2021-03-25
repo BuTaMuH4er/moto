@@ -1,8 +1,12 @@
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from db_settings import Base, engine_db
+#from db_settings import Base, engine_db
+from api import config
 from sqlalchemy_serializer import SerializerMixin
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config.from_object(config)
+db = SQLAlchemy(app)
 
 
 class Motocycle(db.Model, SerializerMixin):
@@ -37,11 +41,12 @@ class BrandsMotocycle(db.Model):
     def __init__(self, brand_name):
         self.brand_name = brand_name
     __tablename__ = 'brands'
-    brand_name = db.Column(db.String(100))
     brand_id = db.Column(db.Integer, primary_key=True)
+    brand_name = db.Column(db.String(100))
     motocycle = db.relationship('Motocycle', backref='brand_motocycle', lazy=True)
     def __repr__(self):
         return f'{self.brand_name} {self.brand_id}'
 
+
 if __name__ == '__main__':
-    Base.metadata.create_all(bind=engine_db)
+    db.create_all()
