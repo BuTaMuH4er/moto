@@ -1,8 +1,13 @@
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from db_settings import Base, engine_db
-from sqlalchemy_serializer import SerializerMixin
+from flask_migrate import Migrate
+from api import config
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config.from_object(config)
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 class Motocycle(db.Model, SerializerMixin):
@@ -42,6 +47,3 @@ class BrandsMotocycle(db.Model):
     motocycle = db.relationship('Motocycle', backref='brand_motocycle', lazy=True)
     def __repr__(self):
         return f'{self.brand_name} {self.brand_id}'
-
-if __name__ == '__main__':
-    Base.metadata.create_all(bind=engine_db)
