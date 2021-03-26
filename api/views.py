@@ -1,5 +1,9 @@
 from flask_restful import Resource, reqparse
-from api.model import db, Motocycle
+from model import Motocycle
+from flask_sqlalchemy import SQLAlchemy
+
+#db = SQLAlchemy()
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('brand_name', type=str)

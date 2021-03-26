@@ -15,7 +15,7 @@ class Motocycle(db.Model, SerializerMixin):
         self.model = model
     __tablename__ = 'motocycles_info'
     id = db.Column(db.Integer, primary_key=True)
-    brand_name = db.Column(db.Integer, db.ForeignKey('BrandsMotocycle.brand_id'), index=True, nullable=False)
+    brand_name = db.relationship('BrandsMotocycle', backref='brand', lazy='dynamic')
     model = db.Column(db.String(100))
     modifications = db.Column(db.String(300))
     year_birth = db.Column(db.String(150))
@@ -37,13 +37,12 @@ class Motocycle(db.Model, SerializerMixin):
         return f'{self.__dict__}'
 
 
-class BrandsMotocycle(db.Model):
+class BrandsMotocycle(db.Model, SerializerMixin):
     def __init__(self, brand_name):
         self.brand_name = brand_name
     __tablename__ = 'brands'
-    brand_id = db.Column(db.Integer, primary_key=True)
+    brand_id = db.Column(db.Integer, primary_key=True, db.ForeignKey('brand.id'))
     brand_name = db.Column(db.String(100))
-    motocycle = db.relationship('Motocycle', backref='brand_motocycle', lazy=True)
     def __repr__(self):
         return f'{self.brand_name} {self.brand_id}'
 
