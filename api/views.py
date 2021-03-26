@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from model import Motocycle
+from api.model import Motocycle
 from flask_sqlalchemy import SQLAlchemy
 
 #db = SQLAlchemy()

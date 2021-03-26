@@ -41,7 +41,7 @@ class BrandsMotocycle(db.Model, SerializerMixin):
     def __init__(self, brand_name):
         self.brand_name = brand_name
     __tablename__ = 'brands'
-    brand_id = db.Column(db.Integer, primary_key=True, db.ForeignKey('brand.id'))
+    brand_id = db.Column(db.Integer, db.ForeignKey('brand.id'), primary_key=True)
     brand_name = db.Column(db.String(100))
     def __repr__(self):
         return f'{self.brand_name} {self.brand_id}'
