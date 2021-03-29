@@ -19,6 +19,5 @@ def create_brand(brand):
         return BrandsMotocycle.query.filter_by(brand_name=brand).one().id
 
 if __name__ == '__main__':
-    a = Motocycle.query.filter_by(id=50).one()
-    b = BrandsMotocycle.query.filter_by(id=a.brand_name).one()
-    print(b.brand_name, a.model)
+    x = Motocycle.query.filter(Motocycle.model=='CB 500F').first()
+    print(x.brand_name, x.model)

@@ -14,8 +14,9 @@ class Motocycle(db.Model, SerializerMixin):
         self.model = model
     __tablename__ = 'motocycles_info'
     id = db.Column(db.Integer, primary_key=True)
-    #brand_name = db.relationship('BrandsMotocycle', db.ForeignKey('BrandsMotocycle.id'), lazy='joined')
     brand_name = db.Column(db.Integer, db.ForeignKey('brands.id'))
+    #нужно ли здесь прописывать relationship?
+    #brands = db.relationship(BrandsMotocycle) как правильно указать?
     model = db.Column(db.String(100))
     modifications = db.Column(db.String(300))
     year_birth = db.Column(db.String(150))
@@ -41,7 +42,7 @@ class BrandsMotocycle(db.Model, SerializerMixin):
     def __init__(self, brand_name):
         self.brand_name = brand_name
     __tablename__ = 'brands'
-    #brand_id = db.Column(db.Integer, backref='id', primary_key=True)
+    #brand_id = db.Column(db.Integer, backref='brands', primary_key=True)
     id = db.Column(db.Integer, primary_key=True)
     motos = db.relationship(Motocycle, backref='brands', lazy='joined')
     brand_name = db.Column(db.String(100))
