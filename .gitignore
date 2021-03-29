@@ -8,3 +8,5 @@ env/
 .idea/
 pages_biker_wiki/
 pages_cyclechaos/
+migrations/
+alembic.ini
