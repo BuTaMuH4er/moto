@@ -15,8 +15,7 @@ class Motocycle(db.Model, SerializerMixin):
     __tablename__ = 'motocycles_info'
     id = db.Column(db.Integer, primary_key=True)
     brand_name = db.Column(db.Integer, db.ForeignKey('brands.id'))
-    #нужно ли здесь прописывать relationship?
-    #brands = db.relationship(BrandsMotocycle) как правильно указать?
+    brand = db.relationship('BrandsMotocycle', backref='moto')
     model = db.Column(db.String(100))
     modifications = db.Column(db.String(300))
     year_birth = db.Column(db.String(150))
@@ -31,7 +30,7 @@ class Motocycle(db.Model, SerializerMixin):
 
 
     def __repr__(self):
-        return f'{self.brand_name} {self.model}'
+        return f'{self.id} {self.brand_name} {self.model}'
 
 
     def print_properties(self):
@@ -44,7 +43,7 @@ class BrandsMotocycle(db.Model, SerializerMixin):
     __tablename__ = 'brands'
     #brand_id = db.Column(db.Integer, backref='brands', primary_key=True)
     id = db.Column(db.Integer, primary_key=True)
-    motos = db.relationship(Motocycle, backref='brands', lazy='joined')
+    motocycles = db.relationship('Motocycle', lazy='joined', backref='brands')
     brand_name = db.Column(db.String(100))
     def __repr__(self):
         return f'{self.brand_name} {self.id}'

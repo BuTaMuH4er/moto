@@ -20,4 +20,8 @@ def create_brand(brand):
 
 if __name__ == '__main__':
     x = Motocycle.query.filter(Motocycle.model=='CB 500F').first()
-    print(x.brand_name, x.model)
+    print(x.brands.brand_name, x.model)
+    y = BrandsMotocycle.query.filter(BrandsMotocycle.brand_name == 'Honda').all()
+    for i in y:
+        for x in i.moto:
+            print(x.id, i.brand_name, x.model)
