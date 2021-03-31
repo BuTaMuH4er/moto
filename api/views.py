@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from api.model import Motocycle
+from api.model import Motocycle, BrandsMotocycle
 from flask_sqlalchemy import SQLAlchemy
 
 #db = SQLAlchemy()
@@ -18,7 +18,7 @@ class motocycles_API(Resource):
     #    return [moto.to_dict() for moto in motocycle]
 
     def get(self, id=None):
-        if not id:
+        if id is None:
             motocycles = Motocycle.query.all()
         else:
             motocycles = [Motocycle.query.get(id)]
