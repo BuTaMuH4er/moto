@@ -27,7 +27,7 @@ class motocycles_API(Resource):
         result = {}
         for moto in motocycles:
             result[moto.id] = {
-                'brand_name':moto.brand_name,
+                'brand_name':moto.brands.brand_name,
                 'model':moto.model,
                 'engine':moto.engine
             }

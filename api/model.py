@@ -49,7 +49,7 @@ class BrandsMotocycle(db.Model, SerializerMixin):
         return f'{self.brand_name} {self.id}'
 
 
-class MotoPhoto(db.Model, SerializerMixin):
+"""class MotoPhoto(db.Model, SerializerMixin):
     def __init__(self, moto_id, img_name):
         self.img_name = img_name
         self.moto_id = moto_id
@@ -58,7 +58,7 @@ class MotoPhoto(db.Model, SerializerMixin):
     moto_id = db.Column(db.Integer, db.ForeignKey('Motocycle.id'))
     photo = db.relationship('Motocycle', lazy='joined', backref='photo')
     def __repr__(self):
-        return f'{self.moto_id} {self.img_name}'
+        return f'{self.moto_id} {self.img_name}'"""
 
 
 def create_brand(brand):
