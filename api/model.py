@@ -13,6 +13,8 @@ class Motocycle(db.Model, SerializerMixin):
         self.brand_name = brand_name
         self.model = model
     __tablename__ = 'motocycles_info'
+    #serialize_rules = ('-brands.id',)
+    serialize_only = ('id', 'brand_name', 'model', '-brands.id',)
     id = db.Column(db.Integer, primary_key=True)
     brand_name = db.Column(db.Integer, db.ForeignKey('brands.id'))
     brand = db.relationship('BrandsMotocycle', backref='moto')

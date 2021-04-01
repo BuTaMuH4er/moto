@@ -23,7 +23,7 @@ class motocycles_API(Resource):
         else:
             motocycles = [Motocycle.query.get(id)]
         if not motocycles:
-            abort (404)
+            abort(404)
         result = {}
         for moto in motocycles:
             result[moto.id] = {

@@ -15,6 +15,6 @@ def create_app():
     db.init_app(app)
     migrate = Migrate(app, db)
 
-    #api.add_resource(views.motocycles_API, '/<string:id>')
+    api.add_resource(views.motocycles_API, '/<int:id>')
     api.add_resource(views.cycle_by_id, '/by_id/<int:id>')
     return app

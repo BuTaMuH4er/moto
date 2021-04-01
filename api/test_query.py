@@ -18,10 +18,22 @@ def create_brand(brand):
         db.session.commit()
         return BrandsMotocycle.query.filter_by(brand_name=brand).one().id
 
+
+def get(id):
+    if isinstance(id, int):
+        count_vehicles = Motocycle.query.filter_by(id=id).count()
+        if count_vehicles:
+            motocycle = Motocycle.query.filter_by(id=id).one()
+            return motocycle
+            #return motocycle.to_dict()
+        return {'error':'There is no motocycle, wrong id.'}
+    return {'error':'Wrong format "id"'}
 if __name__ == '__main__':
-    x = Motocycle.query.filter(Motocycle.model=='CB 500F').first()
+    """x = Motocycle.query.filter(Motocycle.model=='CB 500F').first()
     print(x.brands.brand_name, x.model)
     y = BrandsMotocycle.query.filter(BrandsMotocycle.brand_name == 'Honda').all()
     for i in y:
         for x in i.moto:
-            print(x.id, i.brand_name, x.model)
+            print(x.id, i.brand_name, x.model)"""
+
+    print(get(88).to_dict())
