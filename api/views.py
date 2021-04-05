@@ -46,4 +46,37 @@ class cycle_by_id(Resource):
         return {'error':'Wrong format "id"'}
 
 
+class list_brands(Resource):
+
+    def get(self):
+        brands = dict()
+        list_brands = BrandsMotocycle.query.all()
+        for i in list_brands:
+            brands[i.brand_name] = i.id
+        return brands
+
+
+class show_by_brand(Resource):
+
+    def get(self, id_brand):
+        if isinstance(id_brand, list):
+            list_motos = Motocycle.query.filter_by(brand_name=(id_brand)).all()
+            result = dict()
+            for moto in list_motos:
+                result[moto.id] = {
+                    'brand_name': moto.brands.brand_name,
+                    'model': moto.model,
+                    'engine': moto.engine
+                }
+            return result
+        list_motos = Motocycle.query.filter_by(brand_name=id_brand).all()
+        result = dict()
+        for moto in list_motos:
+            result[moto.id] = {
+                'brand_name': moto.brands.brand_name,
+                'model': moto.model,
+                'engine': moto.engine
+            }
+        return result
+
 

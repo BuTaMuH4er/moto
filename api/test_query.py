@@ -36,4 +36,5 @@ if __name__ == '__main__':
         for x in i.moto:
             print(x.id, i.brand_name, x.model)"""
 
-    print(get(88).to_dict())
+    #print(get(88).to_dict())
+    x = BrandsMotocycle.query.all()

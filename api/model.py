@@ -45,7 +45,6 @@ class BrandsMotocycle(db.Model, SerializerMixin):
     #serialize_only = ('brand_name','-brand_name.brands',)
     serialize_only = ('brand_name.moto',)
     #serialize_rules = ('brands',)
-    #brand_id = db.Column(db.Integer, backref='brands', primary_key=True)
     id = db.Column(db.Integer, primary_key=True)
     motocycles = db.relationship('Motocycle', lazy='joined', backref='brands')
     brand_name = db.Column(db.String(100))
