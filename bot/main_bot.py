@@ -9,16 +9,16 @@ from datetime import datetime
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 
-SEARCH = range(1)
+SEARCH, FILTER_BRAND = range(2)
 
 
 
 if __name__ == '__main__':
     mybot = Updater(API_KEY_BOT, use_context=True)
     conv_hand = ConversationHandler(
-        entry_points=[CommandHandler('Start', logic.start_bot)],
+        entry_points=[CommandHandler('start', logic.start_bot)],
         states={
-            SEARCH: [MessageHandler(Filters.text, logic.search_keyboard, pass_user_data=True)],
+            SEARCH: [MessageHandler(Filters.text, logic.search_keyboard)],
         },
         fallbacks=[CommandHandler('stop', logic.stop)],
     )
