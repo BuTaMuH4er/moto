@@ -52,7 +52,7 @@ def search_keyboard(brand_index=None, next=False, back=False):
     brands_list = list(dict_brands.keys())
     if brand_index==None:
         for brand_index in range(3):
-            row.append(InlineKeyboardButton(brands_list[brand_index]), callback_data=str(brands_list[brand_index]))
+            row.append((InlineKeyboardButton(brands_list[brand_index]), callback_data=str(brands_list[brand_index])))
         return keyboard.append(row)
     elif (brand_index+3) <= len(brands_list) and next==True:
         for i in range(brands_list, brands_list+3):
