@@ -11,7 +11,7 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 #Stages
 SEARCH, FILTER_BRAND = range(2)
 # Callback data
-next, back = range(2)
+next, back, searching = range(3)
 
 
 
@@ -21,9 +21,12 @@ if __name__ == '__main__':
     conv_hand = ConversationHandler(per_message=False,
         entry_points=[CommandHandler('start', logic.start_bot, pass_user_data=True)],
         states={
-            SEARCH: [MessageHandler(Filters.text, logic.search_keyboard, pass_user_data=True),
+            SEARCH: [
+                MessageHandler(Filters.text, logic.search_keyboard, pass_user_data=True),
             CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'),
-            CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$')],
+            CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$'),
+            CallbackQueryHandler(logic.searching, pattern='^' + str(searching) + '$'),
+            ],
         },
         fallbacks=[CommandHandler('stop', logic.stop)],
     )

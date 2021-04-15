@@ -3,8 +3,10 @@ from telegram.ext import CallbackContext
 import requests
 
 BASE_URL = 'http://localhost:5000'
-
+#Stages
 SEARCH = range(1)
+# Callback data
+next, back, searching = range(3)
 
 def brands_nav(update, context):
     keyboard = []
@@ -15,9 +17,9 @@ def brands_nav(update, context):
         context.user_data['brand_index'] = None
         brand_index = context.user_data['brand_index']
     #buttons for 2nd row buttons
-    back_button = InlineKeyboardButton('<<назад', callback_data=str('back'))
-    search = InlineKeyboardButton('поиск', callback_data=str('search'))
-    next_button = InlineKeyboardButton('вперед>>', callback_data=str('next'))
+    back_button = InlineKeyboardButton('<<назад', callback_data=str(back))
+    search = InlineKeyboardButton('поиск', callback_data=str(searching))
+    next_button = InlineKeyboardButton('вперед>>', callback_data=str(next))
     if brand_index==None:
         keyboard.append(search_keyboard(update, context))
     else:
@@ -38,7 +40,7 @@ def start_bot(update, context):
     update.message.reply_text(f'Выберите один из брендов', reply_markup=InlineKeyboardMarkup(keyboard_brands))
     return SEARCH
 
-
+#тут первый принт!
 def search_keyboard(update, context):
     brands_list = context.user_data['brands_list']
     brand_index = context.user_data['brand_index']
@@ -85,6 +87,12 @@ def back_brand(update, context):
     context.user_data['brand_index'] = index - 3
     return SEARCH
 
+
+def searching(update, context):
+    query = update.callback_query
+    query.answer()
+    print(f'Нажали на кнопку поиска')
+    update.message.reply_text(f'Поиск нажат')
 
 def stop(update, context):
     update.message.reply_text(f'Досвидания')
