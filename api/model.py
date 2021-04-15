@@ -13,6 +13,7 @@ class Motocycle(db.Model, SerializerMixin):
         self.brand_name = brand_name
         self.model = model
     __tablename__ = 'motocycles_info'
+    serialize_rules = ('-brand_name','-brand',)
     id = db.Column(db.Integer, primary_key=True)
     brand_name = db.Column(db.Integer, db.ForeignKey('brands.id'))
     brand = db.relationship('BrandsMotocycle', backref='moto')
@@ -41,12 +42,26 @@ class BrandsMotocycle(db.Model, SerializerMixin):
     def __init__(self, brand_name):
         self.brand_name = brand_name
     __tablename__ = 'brands'
-    #brand_id = db.Column(db.Integer, backref='brands', primary_key=True)
+    #serialize_only = ('brand_name','-brand_name.brands',)
+    serialize_only = ('brand_name.moto',)
+    #serialize_rules = ('brands',)
     id = db.Column(db.Integer, primary_key=True)
     motocycles = db.relationship('Motocycle', lazy='joined', backref='brands')
     brand_name = db.Column(db.String(100))
     def __repr__(self):
         return f'{self.brand_name} {self.id}'
+
+
+"""class MotoPhoto(db.Model, SerializerMixin):
+    def __init__(self, moto_id, img_name):
+        self.img_name = img_name
+        self.moto_id = moto_id
+    __tablename__ = 'motocycles_img'
+    img_name = db.Column(db.String(100), primary_key=True)
+    moto_id = db.Column(db.Integer, db.ForeignKey('Motocycle.id'))
+    photo = db.relationship('Motocycle', lazy='joined', backref='photo')
+    def __repr__(self):
+        return f'{self.moto_id} {self.img_name}'"""
 
 
 def create_brand(brand):
