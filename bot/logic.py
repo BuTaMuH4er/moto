@@ -20,13 +20,10 @@ def brands_nav(update, context):
     back_button = InlineKeyboardButton('<<назад', callback_data=str(back))
     search = InlineKeyboardButton('поиск', callback_data=str(searching))
     next_button = InlineKeyboardButton('вперед>>', callback_data=str(next))
-    if brand_index==None:
-        keyboard.append(search_keyboard(update, context))
-    else:
-        keyboard.append(search_keyboard(brand_index))
+    keyboard.append(search_keyboard(update,context))
     keyboard.append([back_button, search, next_button])
     keyboard.append([InlineKeyboardButton('поиск по всем', callback_data=str('all'))])
-    print(f'brands_nav начало функции {brand_index}')
+    print(f'brands_nav конец функции функции {brand_index}')
     return keyboard
 
 def start_bot(update, context):
@@ -54,10 +51,12 @@ def search_keyboard(update, context):
         print(f' условия, изменение индекса {context.user_data["brand_index"]}')
         return row
     elif brand_index <= len(brands_list):
-        for i in range(brands_list, brands_list + 3):
+        for i in range(brand_index, brand_index + 3):
             row.append(InlineKeyboardButton(brands_list[i], callback_data=str(brands_list[i])))
-            context.user_data['brand_index'] = brand_index + 3
-        return keyboard.append(row)
+            #context.user_data['brand_index'] = brand_index + 3
+        keyboard.append(row)
+        return row
+        #return keyboard
     elif brand_index > len(brands_list):
         for i in range(brand_index, len(brands_list)):
             row.append(InlineKeyboardButton(brands_list[i], callback_data=str(brands_list[i])))
@@ -69,13 +68,24 @@ def search_keyboard(update, context):
         return keyboard.append(row)
 
 
-def next_brand(update, context):
+"""def next_brand(update, context):
     print(f'кто-то запросил следующие бренды')
     query = update.callback_query
     query.answer()
     index = context.user_data['brand_index']
     context.user_data['brand_index'] = index + 3
-    return SEARCH
+    query.edit_message_text(text='Добавить бренд в фильтр')
+    return SEARCH"""
+
+def next_brand(update, context):
+    print(f'Старт кнопки next')
+    query = update.callback_query
+    query.answer()
+    index = context.user_data['brand_index']
+    context.user_data['brand_index'] = index + 3
+    keyboard = brands_nav(update, context)
+    print(f'попытка обновить клавиатуру')
+    new_keyboard(update, context, keyboard)
 
 #из функций переключения по списку мы передаем бренд_индекс через юзер_дата, дальше сравниваем какое значение
 #у бренд индекса и исходя из этого передаем значения в серч_кейбор и делаем кнопки
@@ -89,14 +99,21 @@ def back_brand(update, context):
 
 
 def searching(update, context):
-    query = update.callback_query
-    query.answer()
     print(f'Нажали на кнопку поиска')
-    update.message.reply_text(f'Поиск нажат')
+    #query = update.callback_query
+    #query.answer()
+    #update.message.reply_text(f'Поиск нажат')
 
 def stop(update, context):
     update.message.reply_text(f'Досвидания')
     return ConversationHandler.END
+
+
+def new_keyboard(update, context, keyboard):
+    query = update.callback_query
+    print(len(keyboard), '\n', keyboard)
+    return query.edit_message_text(f'Выберите один из брендов', reply_markup=InlineKeyboardMarkup(keyboard))
+    #return update.message.edit_message_text(f'Выберите один из брендов', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 #if __name__ == '__main__':

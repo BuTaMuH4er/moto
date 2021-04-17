@@ -23,9 +23,9 @@ if __name__ == '__main__':
         states={
             SEARCH: [
                 MessageHandler(Filters.text, logic.search_keyboard, pass_user_data=True),
-            CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'),
+            #CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'),
             CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$'),
-            CallbackQueryHandler(logic.searching, pattern='^' + str(searching) + '$'),
+            CallbackQueryHandler(logic.searching, pass_user_data=True, pattern='^' + str(searching) + '$'),
             ],
         },
         fallbacks=[CommandHandler('stop', logic.stop)],
@@ -33,6 +33,7 @@ if __name__ == '__main__':
 
     dp = mybot.dispatcher
     dp.add_handler(conv_hand)
+    dp.add_handler(CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'))
 
     time_now = datetime.today().strftime("%H:%M:%S  %d/%m/%Y")
     logging.info(f'{time_now} Бот стартовал')
