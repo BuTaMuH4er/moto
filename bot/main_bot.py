@@ -1,39 +1,23 @@
 from api.config import API_KEY_BOT
-import logging
+import logging, logic
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-import datetime, logic
 from datetime import datetime
 
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
-#Stages
-SEARCH, FILTER_BRAND = range(2)
 # Callback data
-next, back, searching = range(3)
-
-
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search_start = range(10)
 
 
 if __name__ == '__main__':
     mybot = Updater(API_KEY_BOT, use_context=True)
-    conv_hand = ConversationHandler(per_message=False,
-        entry_points=[CommandHandler('start', logic.start_bot, pass_user_data=True)],
-        states={
-            SEARCH: [
-                MessageHandler(Filters.text, logic.search_keyboard, pass_user_data=True),
-            #CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'),
-            CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$'),
-            CallbackQueryHandler(logic.searching, pass_user_data=True, pattern='^' + str(searching) + '$'),
-            ],
-        },
-        fallbacks=[CommandHandler('stop', logic.stop)],
-    )
 
     dp = mybot.dispatcher
-    dp.add_handler(conv_hand)
+    dp.add_handler(CommandHandler('start', logic.start_bot, pass_user_data=True))
+    dp.add_handler(CallbackQueryHandler(logic.brands, pass_user_data=True, pattern='^' + str(brand) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$'))
 
     time_now = datetime.today().strftime("%H:%M:%S  %d/%m/%Y")
     logging.info(f'{time_now} Бот стартовал')
