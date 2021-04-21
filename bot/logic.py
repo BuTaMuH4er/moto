@@ -1,11 +1,11 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
-import requests
+import re, requests
 
 BASE_URL = 'http://localhost:5000'
 
 # Callback data
-next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search_start = range(10)
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search, search_all = range(11)
 
 
 def start_bot(update, context):
@@ -26,9 +26,9 @@ def main_keyboard():
     engine = InlineKeyboardButton('кубатура', callback_data=str(engine_volume))
     type_engine = InlineKeyboardButton('впрыск', callback_data=str(engine_type))
     motocycle_class = InlineKeyboardButton('класс', callback_data=str(class_moto))
-    year_birth = InlineKeyboardButton('год выпуска', callback_data=(birth_year))
-    gear_type = InlineKeyboardButton('тип передачи', callback_data=(type_gear))
-    start_search = InlineKeyboardButton('поиск', callback_data=(search_start))
+    year_birth = InlineKeyboardButton('год выпуска', callback_data=str(birth_year))
+    gear_type = InlineKeyboardButton('тип передачи', callback_data=str(type_gear))
+    start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     keyboard.append([brands, engine, type_engine])
     keyboard.append([motocycle_class, year_birth, gear_type])
     keyboard.append([start_search])
@@ -49,11 +49,11 @@ def brands_nav(update, context):
         context.user_data['brand_index'] = None
     #buttons for 2nd row buttons
     back_button = InlineKeyboardButton('<<назад', callback_data=str(back))
-    search = InlineKeyboardButton('поиск', callback_data=str(searching))
+    search = InlineKeyboardButton('поиск', callback_data=str(f'search'))
     next_button = InlineKeyboardButton('вперед>>', callback_data=str(next))
     keyboard.append(search_keyboard(update, context))
     keyboard.append([back_button, search, next_button])
-    keyboard.append([InlineKeyboardButton('поиск по всем', callback_data=str('all'))])
+    keyboard.append([InlineKeyboardButton('поиск по всем', callback_data=str(search_all))])
     return keyboard
 
 
@@ -64,12 +64,12 @@ def search_keyboard(update, context):
     keyboard = []
     if brand_index == None:
         for brand_index in range(3):
-            row.append(InlineKeyboardButton(brands_list[brand_index], callback_data=str(brands_list[brand_index])))
+            row.append(InlineKeyboardButton(brands_list[brand_index], callback_data=(f"brand|{brands_list[brand_index]}")))
         context.user_data['brand_index'] = 0
         return row
     else:
         for i in range(brand_index, brand_index + 3):
-            row.append(InlineKeyboardButton(brands_list[i], callback_data=str(brands_list[i])))
+            row.append(InlineKeyboardButton(brands_list[i], callback_data=(f"brand|{brands_list[i]}")))
         keyboard.append(row)
         return row
 
@@ -109,4 +109,29 @@ def searching(update, context):
 def new_keyboard(update, context, keyboard):
     query = update.callback_query
     return query.edit_message_text(f'Выберите один из брендов', reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+def button_filter(update, context):
+    #selected_brand = []
+    query = update.callback_query
+    selected_button = query['data'].split('|')
+    print(selected_button)
+    if selected_button[0] == 'brand':
+        selected_brands(selected_button[0])
+    #selected_brand.append(selected_button)
+    #context.user_data['selected_brands'] = selected_brand
+
+
+def selected_brands(context, brand):
+    select_brand = []
+    select_brand.append(brand)
+    context.user_data['selected_brand'] = select_brand
+    print(f'\n\n Список выбранных брендов {context.user_data["selected_brand"]}')
+
+
+def search_button(update, context):
+    query = update.callback_query
+    print(query)
+
+
 

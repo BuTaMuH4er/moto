@@ -7,7 +7,7 @@ from datetime import datetime
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 # Callback data
-next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search_start = range(10)
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search, search_all = range(11)
 
 
 if __name__ == '__main__':
@@ -18,6 +18,10 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.brands, pass_user_data=True, pattern='^' + str(brand) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.search_button, pass_user_data=True, pattern='^' + str(search) + '$'))
+
+
+    dp.add_handler(CallbackQueryHandler(logic.button_filter, pass_user_data=True, pattern='^brand'))
 
     time_now = datetime.today().strftime("%H:%M:%S  %d/%m/%Y")
     logging.info(f'{time_now} Бот стартовал')
