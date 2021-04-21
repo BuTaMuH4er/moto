@@ -5,8 +5,10 @@ import re, requests
 BASE_URL = 'http://localhost:5000'
 
 # Callback data
-next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search, search_all = range(11)
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search, search_all, back_menu = range(12)
 
+#Filter variables
+SELECT_BRAND = set()
 
 def start_bot(update, context):
     dict_brands = requests.get(BASE_URL + '/brands').json()
@@ -83,7 +85,7 @@ def next_brand(update, context):
     if (index + 3) <= len(brands_list):
         context.user_data['brand_index'] = index + 3
     else:
-        context.user_data['brand_index'] = len(brans_list) - 3
+        context.user_data['brand_index'] = len(brands_list) - 3
     keyboard = brands_nav(update, context)
     new_keyboard(update, context, keyboard)
 
@@ -102,36 +104,40 @@ def back_brand(update, context):
     new_keyboard(update, context, keyboard)
 
 
-def searching(update, context):
-    print(f'Нажали на кнопку поиска')
-
-
 def new_keyboard(update, context, keyboard):
     query = update.callback_query
     return query.edit_message_text(f'Выберите один из брендов', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def button_filter(update, context):
-    #selected_brand = []
     query = update.callback_query
     selected_button = query['data'].split('|')
     print(selected_button)
     if selected_button[0] == 'brand':
-        selected_brands(selected_button[0])
-    #selected_brand.append(selected_button)
-    #context.user_data['selected_brands'] = selected_brand
+        SELECT_BRAND.add(selected_button[1])
+    context.user_data['filter_by_brand'] = SELECT_BRAND
 
 
-def selected_brands(context, brand):
-    select_brand = []
-    select_brand.append(brand)
-    context.user_data['selected_brand'] = select_brand
-    print(f'\n\n Список выбранных брендов {context.user_data["selected_brand"]}')
-
-
-def search_button(update, context):
+def type_engine(update, context):
+    keyboard = []
+    carburator  = InlineKeyboardButton('карбюратор', callback_data=str(f'carburator'))
+    injector = InlineKeyboardButton('инжектор', callback_data=str(f'injector'))
+    less_125 = InlineKeyboardButton('<125', callback_data=str(f'less_125'))
+    less_400 = InlineKeyboardButton('<400', callback_data=str(f'less_400'))
+    less_999 = InlineKeyboardButton('<999', callback_data=str(f'less_999'))
+    more_liter = InlineKeyboardButton('1000>', callback_data=str(f'liter'))
+    search = InlineKeyboardButton('поиск', callback_data=str(f'search'))
+    back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
+    keyboard.append([carburator, injector])
+    keyboard.append([less_125, less_400, less_999, more_liter])
+    keyboard.append([search, back_to_menu])
     query = update.callback_query
-    print(query)
+    return query.edit_message_text(f'Выберите тип двигателя и объем', reply_markup=InlineKeyboardMarkup(keyboard))
+
+def backword_to_menu(update, context):
+    keyboard = main_keyboard()
+    query = update.callback_query
+    return query.edit_message_text(f' Выберите необходимый тип фильтра ', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 
