@@ -28,13 +28,20 @@ def get(id):
             #return motocycle.to_dict()
         return {'error':'There is no motocycle, wrong id.'}
     return {'error':'Wrong format "id"'}
-if __name__ == '__main__':
-    """x = Motocycle.query.filter(Motocycle.model=='CB 500F').first()
-    print(x.brands.brand_name, x.model)
-    y = BrandsMotocycle.query.filter(BrandsMotocycle.brand_name == 'Honda').all()
-    for i in y:
-        for x in i.moto:
-            print(x.id, i.brand_name, x.model)"""
 
-    #print(get(88).to_dict())
-    x = BrandsMotocycle.query.all()
+
+def take_gears():
+    gears = Motocycle.query.distinct(Motocycle.gear_type).all()
+    for i in gears:
+        print(i.gear_type)
+
+
+def class_cycles():
+    classes = Motocycle.query.distinct(Motocycle.cycle_class).all()
+    for i in classes:
+        print(i.cycle_class)
+
+
+if __name__ == '__main__':
+    #x = BrandsMotocycle.query.all()
+    class_cycles()

@@ -7,7 +7,7 @@ from datetime import datetime
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 # Callback data
-next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, type_gear, search, search_all, back_menu = range(12)
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, gear_type, search, search_all, back_menu = range(12)
 
 
 if __name__ == '__main__':
@@ -20,6 +20,8 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.type_engine, pass_user_data=True, pattern='^' + str(engine_type) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.backword_to_menu, pass_user_data=True, pattern='^' + str(back_menu) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.gears_button, pass_user_data=True, pattern='^' + str(gear_type) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.moto_class, pass_user_data=True, pattern='^' + str(class_moto) + '$'))
 
     dp.add_handler(CallbackQueryHandler(logic.button_filter, pass_user_data=True, pattern='^brand'))
 
