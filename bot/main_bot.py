@@ -26,6 +26,8 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.select_gear_type_shaft, pass_user_data=True, pattern='^' + str(shaft) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.select_gear_type_chain, pass_user_data=True, pattern='^' + str(chain) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.select_gear_type_belt, pass_user_data=True, pattern='^' + str(belt) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.select_engine_carburator, pass_user_data=True, pattern='^' + 'carburator' + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.select_engine_injector, pass_user_data=True, pattern='^' + 'injector' + '$'))
 
 
 

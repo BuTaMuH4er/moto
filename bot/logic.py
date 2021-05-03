@@ -10,6 +10,7 @@ next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year
 #Filter variables
 SELECT_BRAND = set()
 SELECT_GEAR = set()
+SELECT_ENGINE_TYPE = set()
 
 def start_bot(update, context):
     #This function starts bot and call main keyboard
@@ -130,7 +131,7 @@ def button_filter(update, context):
 def type_engine(update, context):
     #function generate keyboard with filter by engines
     keyboard = []
-    carburator = InlineKeyboardButton('карбюратор', callback_data=str(f'carburator'))
+    carburator= InlineKeyboardButton('карбюратор', callback_data=str(f'carburator'))
     injector = InlineKeyboardButton('инжектор', callback_data=str(f'injector'))
     less_125 = InlineKeyboardButton('<125', callback_data=str(f'less_125'))
     less_400 = InlineKeyboardButton('<400', callback_data=str(f'less_400'))
@@ -143,6 +144,24 @@ def type_engine(update, context):
     keyboard.append([start_search, back_to_menu])
     query = update.callback_query
     return query.edit_message_text(f'Выберите тип двигателя и объем', reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+def select_engine_carburator(update, context):
+    if 'carburator' in SELECT_ENGINE_TYPE:
+        SELECT_ENGINE_TYPE.remove('carburator')
+    else:
+        SELECT_ENGINE_TYPE.add('carburator')
+    context.user_data['engine_type'] = SELECT_ENGINE_TYPE
+    print(SELECT_ENGINE_TYPE)
+
+
+def select_engine_injector(update, context):
+    if 'injector' in SELECT_ENGINE_TYPE:
+        SELECT_ENGINE_TYPE.remove('injector')
+    else:
+        SELECT_ENGINE_TYPE.add('injector')
+    context.user_data['engine_type'] = SELECT_ENGINE_TYPE
+    print(SELECT_ENGINE_TYPE)
 
 
 def backword_to_menu(update, context):
