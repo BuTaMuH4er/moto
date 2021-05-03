@@ -7,7 +7,7 @@ from datetime import datetime
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 # Callback data
-next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, gear_type, search, search_all, back_menu, shaft, chain, belt = range(15)
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, gear_type, search, search_all, back_menu, belt, shaft, chain = range(15)
 
 
 if __name__ == '__main__':
@@ -23,7 +23,9 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.gears_button, pass_user_data=True, pattern='^' + str(gear_type) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.moto_class, pass_user_data=True, pattern='^' + str(class_moto) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.filter_list, pass_user_data=True, pattern='^' + str(search) + '$'))
-    dp.add_handler(CallbackQueryHandler(logic.select_gear_type, pass_user_data=True, pattern='^' + str(shaft) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.select_gear_type_shaft, pass_user_data=True, pattern='^' + str(shaft) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.select_gear_type_chain, pass_user_data=True, pattern='^' + str(chain) + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.select_gear_type_belt, pass_user_data=True, pattern='^' + str(belt) + '$'))
 
 
 

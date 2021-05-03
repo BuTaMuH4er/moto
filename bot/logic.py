@@ -9,6 +9,7 @@ next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year
 
 #Filter variables
 SELECT_BRAND = set()
+SELECT_GEAR = set()
 
 def start_bot(update, context):
     #This function starts bot and call main keyboard
@@ -119,7 +120,10 @@ def button_filter(update, context):
     query = update.callback_query
     selected_button = query['data'].split('|')
     if selected_button[0] == 'brand':
-        SELECT_BRAND.add(selected_button[1])
+        if selected_button[1] in SELECT_BRAND:
+            SELECT_BRAND.remove(selected_button[1])
+        else:
+            SELECT_BRAND.add(selected_button[1])
     context.user_data['filter_by_brand'] = SELECT_BRAND
 
 
@@ -149,7 +153,6 @@ def backword_to_menu(update, context):
 
 
 def gears_button(update, context):
-    print('выбор типа передачи')
     #function generate keyboard with filter by gear type
     keyboard = []
     belt_button = InlineKeyboardButton('ремень', callback_data=str(belt))
@@ -157,18 +160,35 @@ def gears_button(update, context):
     shaft_button = InlineKeyboardButton('кардан', callback_data=str(shaft))
     start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
-    keyboard.append([belt_button, chain_button, shaft_button])
+    keyboard.append([shaft_button, chain_button, belt_button])
     keyboard.append([start_search, back_to_menu])
     query = update.callback_query
     query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
-    print(query)
     #return query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
-def select_gear_type(update, context):
-    query = update.callback_query
-    selected_gear = query['data']
-    print(query)
+def select_gear_type_shaft(update, context):
+    if 'shaft' in SELECT_GEAR:
+        SELECT_GEAR.remove('shaft')
+    else:
+        SELECT_GEAR.add('shaft')
+    context.user_data['selected_gear'] = SELECT_GEAR
+
+
+def select_gear_type_chain(update, context):
+    if 'chain' in SELECT_GEAR:
+        SELECT_GEAR.remove('chain')
+    else:
+        SELECT_GEAR.add('chain')
+    context.user_data['selected_gear'] = SELECT_GEAR
+
+
+def select_gear_type_belt(update, context):
+    if 'belt' in SELECT_GEAR:
+        SELECT_GEAR.remove('belt')
+    else:
+        SELECT_GEAR.add('belt')
+    context.user_data['selected_gear'] = SELECT_GEAR
 
 
 def moto_class(update, context):
