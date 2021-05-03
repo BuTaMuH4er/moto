@@ -19,4 +19,5 @@ def create_app():
     api.add_resource(views.cycle_by_id, '/by_id/<int:id>')
     api.add_resource(views.list_brands, '/brands')
     api.add_resource(views.show_by_brand, '/by_brand/<int:id_brand>')
+    api.add_resource(views.show_by_gear, '/by_gear_type/<string:gear>')
     return app

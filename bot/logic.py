@@ -5,12 +5,13 @@ import re, requests
 BASE_URL = 'http://localhost:5000'
 
 # Callback data
-next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, gear_type, search, search_all, back_menu = range(12)
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, gear_type, search, search_all, back_menu, belt, shaft, chain = range(15)
 
 #Filter variables
 SELECT_BRAND = set()
 
 def start_bot(update, context):
+    #This function starts bot and call main keyboard
     dict_brands = requests.get(BASE_URL + '/brands').json()
     brands_list = list(dict_brands.keys())
     context.user_data['brands_list'] = brands_list
@@ -43,6 +44,7 @@ def brands(update, context):
 
 
 def brands_nav(update, context):
+    #this function generate keyboard with filter by brand
     keyboard = []
     try:
         context.user_data['brand_index']
@@ -50,17 +52,18 @@ def brands_nav(update, context):
         context.user_data['brand_index'] = None
     #buttons for 2nd row buttons
     back_button = InlineKeyboardButton('<<назад', callback_data=str(back))
-    search = InlineKeyboardButton('поиск', callback_data=str(f'search'))
+    start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     next_button = InlineKeyboardButton('вперед>>', callback_data=str(next))
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
     searchALL = InlineKeyboardButton('поиск по всем', callback_data=str(search_all))
     keyboard.append(search_keyboard(update, context))
-    keyboard.append([back_button, search, next_button])
+    keyboard.append([back_button, start_search, next_button])
     keyboard.append([searchALL, back_to_menu])
     return keyboard
 
 
 def search_keyboard(update, context):
+    #function generate row buttons with three brand names
     brands_list = context.user_data['brands_list']
     brand_index = context.user_data['brand_index']
     row = []
@@ -78,6 +81,7 @@ def search_keyboard(update, context):
 
 
 def next_brand(update, context):
+    #call button NEXT to show next brands in list for filter by brand name
     query = update.callback_query
     query.answer()
     index = context.user_data['brand_index']
@@ -93,6 +97,7 @@ def next_brand(update, context):
 #у бренд индекса и исходя из этого передаем значения в серч_кейбор и делаем кнопки
 
 def back_brand(update, context):
+    # call button BACK to show previous brands in list for filter by brand name
     query = update.callback_query
     query.answer()
     index = context.user_data['brand_index']
@@ -110,6 +115,7 @@ def new_keyboard(update, context, keyboard):
 
 
 def button_filter(update, context):
+    #function add to user_data brand name when you choose brand in filter
     query = update.callback_query
     selected_button = query['data'].split('|')
     if selected_button[0] == 'brand':
@@ -118,6 +124,7 @@ def button_filter(update, context):
 
 
 def type_engine(update, context):
+    #function generate keyboard with filter by engines
     keyboard = []
     carburator = InlineKeyboardButton('карбюратор', callback_data=str(f'carburator'))
     injector = InlineKeyboardButton('инжектор', callback_data=str(f'injector'))
@@ -125,32 +132,43 @@ def type_engine(update, context):
     less_400 = InlineKeyboardButton('<400', callback_data=str(f'less_400'))
     less_999 = InlineKeyboardButton('<999', callback_data=str(f'less_999'))
     more_liter = InlineKeyboardButton('1000>', callback_data=str(f'liter'))
-    search = InlineKeyboardButton('поиск', callback_data=str(f'search'))
+    start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
     keyboard.append([carburator, injector])
     keyboard.append([less_125, less_400, less_999, more_liter])
-    keyboard.append([search, back_to_menu])
+    keyboard.append([start_search, back_to_menu])
     query = update.callback_query
     return query.edit_message_text(f'Выберите тип двигателя и объем', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def backword_to_menu(update, context):
+    #callback previous keyboard menu
     keyboard = main_keyboard()
     query = update.callback_query
     return query.edit_message_text(f' Выберите необходимый тип фильтра ', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def gears_button(update, context):
+    print('выбор типа передачи')
+    #function generate keyboard with filter by gear type
     keyboard = []
-    belt = InlineKeyboardButton('ремень', callback_data=str(f'belt'))
-    chain = InlineKeyboardButton('цепь', callback_data=str(f'chain'))
-    shaft = InlineKeyboardButton('кардан', callback_data=str(f'shaft'))
-    search = InlineKeyboardButton('поиск', callback_data=str(f'search'))
+    belt_button = InlineKeyboardButton('ремень', callback_data=str(belt))
+    chain_button = InlineKeyboardButton('цепь', callback_data=str(chain))
+    shaft_button = InlineKeyboardButton('кардан', callback_data=str(shaft))
+    start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
-    keyboard.append([belt, chain, shaft])
-    keyboard.append([search, back_to_menu])
+    keyboard.append([belt_button, chain_button, shaft_button])
+    keyboard.append([start_search, back_to_menu])
     query = update.callback_query
-    return query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
+    query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
+    print(query)
+    #return query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+def select_gear_type(update, context):
+    query = update.callback_query
+    selected_gear = query['data']
+    print(query)
 
 
 def moto_class(update, context):
@@ -162,3 +180,18 @@ def moto_class(update, context):
     keyboard.append([back_to_menu])
     query = update.callback_query
     return query.edit_message_text('class motocycle', reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+def filter_list(update, context):
+    # возвращает обратно множество id мотоциклов для дальнейшей фильтрации
+    print(f'ПОИСК нажат')
+    filter_id = set()
+    if context.user_data['filter_by_brand']:
+        selected_brands = context.user_data['filter_by_brand']
+        dict_brands = requests.get(BASE_URL + '/brands').json()
+        for brand in selected_brands:
+            brand_id = dict_brands[brand]
+            print(brand_id)
+            for i in list(requests.get(BASE_URL + '/by_brand/' + str(brand_id)).json().keys()):filter_id.add(i)
+    print(len(filter_id))
+    return filter_id

@@ -80,3 +80,15 @@ class show_by_brand(Resource):
         return result
 
 
+class show_by_gear(Resource):
+
+    def get(self, gear):
+        result = dict()
+        list_motos = Motocycle.query.filter_by(gear_type=gear).all()
+        for moto in list_motos:
+            result[moto.id] = {
+                'brand_name':moto.brands.brand_name,
+                'model':moto.model,
+                'gear_type':gear
+            }
+        return result
