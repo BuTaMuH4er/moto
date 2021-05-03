@@ -5,12 +5,13 @@ import re, requests
 BASE_URL = 'http://localhost:5000'
 
 # Callback data
-next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, gear_type, search, search_all, back_menu, belt, shaft, chain = range(15)
+next, back, searching, brand, engine_volume, engine_type, class_moto, birth_year, gear_type, search, search_all, back_menu = range(12)
 
 #Filter variables
-SELECT_BRAND = set()
-SELECT_GEAR = set()
-SELECT_ENGINE_TYPE = set()
+SELECT_BRAND = set()                #context.user_data['filter_by_brand']
+SELECT_GEAR = set()                 #context.user_data['selected_gear']
+SELECT_ENGINE_TYPE = set()          #context.user_data['engine_type']
+SELECT_ENGINE_SIZE = set()          #context.user_data['engine_size']
 
 def start_bot(update, context):
     #This function starts bot and call main keyboard
@@ -146,22 +147,22 @@ def type_engine(update, context):
     return query.edit_message_text(f'Выберите тип двигателя и объем', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
-def select_engine_carburator(update, context):
-    if 'carburator' in SELECT_ENGINE_TYPE:
-        SELECT_ENGINE_TYPE.remove('carburator')
+def select_engine_size(update, context):
+    query = update.callback_query
+    if query['data'] in SELECT_ENGINE_SIZE:
+        SELECT_ENGINE_SIZE.remove(query['data'])
     else:
-        SELECT_ENGINE_TYPE.add('carburator')
-    context.user_data['engine_type'] = SELECT_ENGINE_TYPE
-    print(SELECT_ENGINE_TYPE)
+        SELECT_ENGINE_SIZE.add(query['data'])
+    context.user_data['engine_size'] = SELECT_ENGINE_SIZE
 
 
-def select_engine_injector(update, context):
-    if 'injector' in SELECT_ENGINE_TYPE:
-        SELECT_ENGINE_TYPE.remove('injector')
+def select_type_engine(update, context):
+    query = update.callback_query
+    if query['data'] in SELECT_ENGINE_TYPE:
+        SELECT_ENGINE_TYPE.remove(query['data'])
     else:
-        SELECT_ENGINE_TYPE.add('injector')
+        SELECT_ENGINE_TYPE.add(query['data'])
     context.user_data['engine_type'] = SELECT_ENGINE_TYPE
-    print(SELECT_ENGINE_TYPE)
 
 
 def backword_to_menu(update, context):
@@ -174,9 +175,9 @@ def backword_to_menu(update, context):
 def gears_button(update, context):
     #function generate keyboard with filter by gear type
     keyboard = []
-    belt_button = InlineKeyboardButton('ремень', callback_data=str(belt))
-    chain_button = InlineKeyboardButton('цепь', callback_data=str(chain))
-    shaft_button = InlineKeyboardButton('кардан', callback_data=str(shaft))
+    belt_button = InlineKeyboardButton('ремень', callback_data='belt')
+    chain_button = InlineKeyboardButton('цепь', callback_data='chain')
+    shaft_button = InlineKeyboardButton('кардан', callback_data='shaft')
     start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
     keyboard.append([shaft_button, chain_button, belt_button])
@@ -186,28 +187,14 @@ def gears_button(update, context):
     #return query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
-def select_gear_type_shaft(update, context):
-    if 'shaft' in SELECT_GEAR:
-        SELECT_GEAR.remove('shaft')
+def selected_gear_type(update, context):
+    query = update.callback_query
+    if query['data'] in SELECT_GEAR:
+        SELECT_GEAR.remove(query['data'])
     else:
-        SELECT_GEAR.add('shaft')
+        SELECT_GEAR.add(query['data'])
     context.user_data['selected_gear'] = SELECT_GEAR
-
-
-def select_gear_type_chain(update, context):
-    if 'chain' in SELECT_GEAR:
-        SELECT_GEAR.remove('chain')
-    else:
-        SELECT_GEAR.add('chain')
-    context.user_data['selected_gear'] = SELECT_GEAR
-
-
-def select_gear_type_belt(update, context):
-    if 'belt' in SELECT_GEAR:
-        SELECT_GEAR.remove('belt')
-    else:
-        SELECT_GEAR.add('belt')
-    context.user_data['selected_gear'] = SELECT_GEAR
+    print(query['data'])
 
 
 def moto_class(update, context):
