@@ -21,4 +21,5 @@ def create_app():
     api.add_resource(views.show_by_brand, '/by_brand/<int:id_brand>')
     api.add_resource(views.show_by_gear, '/by_gear_type/<string:gear>')
     api.add_resource(views.show_by_engine, '/engine/<string:size>')
+    api.add_resource(views.show_by_engine_type, '/engine_type/<string:engine_type>')
     return app
