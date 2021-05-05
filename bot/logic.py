@@ -194,7 +194,7 @@ def selected_gear_type(update, context):
     else:
         SELECT_GEAR.add(query['data'])
     context.user_data['selected_gear'] = SELECT_GEAR
-    print(query['data'])
+    print(f'selected_gear_type {context.user_data["selected_gear"]}')
 
 
 def moto_class(update, context):
@@ -211,13 +211,21 @@ def moto_class(update, context):
 def filter_list(update, context):
     # возвращает обратно множество id мотоциклов для дальнейшей фильтрации
     print(f'ПОИСК нажат')
-    filter_id = set()
+    print(f'Проверить контекст')
+    print(f'filter_list по передаче {context.user_data["selected_gear"]}')
+    print(f'filter_list по бренду {context.user_data["filter_by_brand"]}')
+    filter_by_brand = set()
+    filter_by_gear = set()
     if context.user_data['filter_by_brand']:
-        selected_brands = context.user_data['filter_by_brand']
         dict_brands = requests.get(BASE_URL + '/brands').json()
-        for brand in selected_brands:
+        for brand in context.user_data['filter_by_brand']:
             brand_id = dict_brands[brand]
-            print(brand_id)
-            for i in list(requests.get(BASE_URL + '/by_brand/' + str(brand_id)).json().keys()):filter_id.add(i)
-    print(len(filter_id))
-    return filter_id
+            for i in list(requests.get(BASE_URL + '/by_brand/' + str(brand_id)).json().keys()) : filter_by_brand.add(i)
+        print(f'Длина списка по маркам {len(filter_by_brand)}')
+
+    if context.user_data['selected_gear']:
+        for gear_type in context.user_data['selected_gear']:
+            for i in list(requests.get(BASE_URL + '/by_gear_type/' + str(gear_type)).json().keys()) : filter_by_gear.add(i)
+        print(f'Длина списка по передачам {len(filter_by_gear)}')
+    filters = []
+    return filters

@@ -44,7 +44,7 @@ def class_cycles():
 
 def engine_size(size=None):
     if size:
-        moto = Motocycle.query.filter(Motocycle.engine > 999).all()
+        moto = Motocycle.query.filter(Motocycle.engine < size).all()
         for i in moto:
             print(i.model, i.engine)
 
@@ -53,4 +53,4 @@ def engine_size(size=None):
 if __name__ == '__main__':
     #x = BrandsMotocycle.query.all()
     #class_cycles()
-    engine_size(9)
+    engine_size(125)

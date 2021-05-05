@@ -27,9 +27,6 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.select_engine_size, pass_user_data=True, pattern='^' + 'less_125|less_400|less_999|liter' + '$'))
     dp.add_handler(CallbackQueryHandler(logic.selected_gear_type, pass_user_data=True, pattern='^' + 'shaft|belt|chain' + '$'))
 
-#хендлеры с кубатурой и типом двигателя, типом привода думаю можно сделать каждую в 1й функции
-
-
 
     dp.add_handler(CallbackQueryHandler(logic.button_filter, pass_user_data=True, pattern='^brand'))
 

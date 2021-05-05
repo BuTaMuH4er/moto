@@ -92,3 +92,21 @@ class show_by_gear(Resource):
                 'gear_type':gear
             }
         return result
+
+
+class show_by_engine(Resource):
+
+    def get(self, size):
+        result = dict()
+        if (size == '125') or (size == '400') or (size == '999'):
+            list_motocycles = Motocycle.query.filter(Motocycle.engine <= int(size)).all()
+        if size == 'liter':
+            list_motocycles = Motocycle.query.filter(Motocycle.engine > 999).all()
+        for moto in list_motocycles:
+            motocycle = Motocycle.query.filter_by(id=moto.id).first()
+            result[motocycle.id] = {
+                'brand_name': motocycle.brands.brand_name,
+                'model': motocycle.model,
+                'engine': motocycle.engine
+            }
+        return result
