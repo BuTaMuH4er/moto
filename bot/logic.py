@@ -132,11 +132,11 @@ def button_filter(update, context):
 def type_engine(update, context):
     #function generate keyboard with filter by engines
     keyboard = []
-    carburator= InlineKeyboardButton('карбюратор', callback_data=str(f'carburator'))
-    injector = InlineKeyboardButton('инжектор', callback_data=str(f'injector'))
-    less_125 = InlineKeyboardButton('<125', callback_data=str(f'less_125'))
-    less_400 = InlineKeyboardButton('<400', callback_data=str(f'less_400'))
-    less_999 = InlineKeyboardButton('<999', callback_data=str(f'less_999'))
+    carburator= InlineKeyboardButton('карбюратор', callback_data=str(f'carburetor'))
+    injector = InlineKeyboardButton('инжектор', callback_data=str(f'injection'))
+    less_125 = InlineKeyboardButton('<125', callback_data=str(f'125'))
+    less_400 = InlineKeyboardButton('<400', callback_data=str(f'400'))
+    less_999 = InlineKeyboardButton('<999', callback_data=str(f'999'))
     more_liter = InlineKeyboardButton('1000>', callback_data=str(f'liter'))
     start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
@@ -194,7 +194,6 @@ def selected_gear_type(update, context):
     else:
         SELECT_GEAR.add(query['data'])
     context.user_data['selected_gear'] = SELECT_GEAR
-    print(f'selected_gear_type {context.user_data["selected_gear"]}')
 
 
 def moto_class(update, context):
@@ -209,13 +208,18 @@ def moto_class(update, context):
 
 
 def filter_list(update, context):
+    list_ids = []
     # возвращает обратно множество id мотоциклов для дальнейшей фильтрации
     print(f'ПОИСК нажат')
     print(f'Проверить контекст')
-    print(f'filter_list по передаче {context.user_data["selected_gear"]}')
-    print(f'filter_list по бренду {context.user_data["filter_by_brand"]}')
+    #print(f'filter_list по передаче {context.user_data["selected_gear"]}')
+    #print(f'filter_list по бренду {context.user_data["filter_by_brand"]}')
+    print(f'фильтр по типу двигателя {context.user_data["engine_type"]}')
+    print(f'фильтр по кубатуре {context.user_data["engine_size"]}')
     filter_by_brand = set()
     filter_by_gear = set()
+    filter_by_engine_type = set()
+    filter_by_engine_size = set()
     if context.user_data['filter_by_brand']:
         dict_brands = requests.get(BASE_URL + '/brands').json()
         for brand in context.user_data['filter_by_brand']:
@@ -227,5 +231,25 @@ def filter_list(update, context):
         for gear_type in context.user_data['selected_gear']:
             for i in list(requests.get(BASE_URL + '/by_gear_type/' + str(gear_type)).json().keys()) : filter_by_gear.add(i)
         print(f'Длина списка по передачам {len(filter_by_gear)}')
-    filters = []
-    return filters
+
+    if context.user_data['engine_type']:
+        for engine in context.user_data['engine_type']:
+            for i in list(requests.get(BASE_URL + '/engine_type/' + str(engine)).json().keys()) : filter_by_engine_type.add(i)
+        print(f'Длина списка типу впрыска {len(filter_by_engine_type)}')
+
+    if context.user_data['engine_size']:
+        for engine in context.user_data['engine_size']:
+            for i in list(requests.get(BASE_URL + '/engine/' + str(engine)).json().keys()) : filter_by_engine_size.add(i)
+        print(f'Длина списка кубатуре {len(filter_by_engine_size)}')
+
+    filters = [filter_by_engine_type, filter_by_engine_size, filter_by_gear, filter_by_brand]
+    for filter in filters:
+        if len(list_ids) == 0:
+            list_ids = filter
+        elif len(filter) != 0:
+            list_ids = list_ids.intersection(list(filter))
+    print(f'длина конечного списка после фильтров: {len(list_ids)}')
+    return list_ids
+
+
+#TODO: переделать фильтр по объему двигателя (если меньше 999, то должен отсекать то что меньше 400) и сделать кнопку сброса всех фильтров(иначе приходится перезапускать бота)
