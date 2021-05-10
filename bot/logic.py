@@ -225,7 +225,11 @@ def moto_class(update, context):
     row = moto_class_buttons(update, context)
     print(row)
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
+    back_button = InlineKeyboardButton('<<назад', callback_data=str(back))
+    next_button = InlineKeyboardButton('вперед>>', callback_data=str(next))
+    start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     keyboard.append(row)
+    keyboard.append([back_button, start_search, next_button])
     keyboard.append([back_to_menu])
     query = update.callback_query
     return query.edit_message_text('class motocycle', reply_markup=InlineKeyboardMarkup(keyboard))
@@ -274,6 +278,3 @@ def filter_list(update, context):
             list_ids = list_ids.intersection(list(filter))
     print(f'длина конечного списка после фильтров: {len(list_ids)}')
     return list_ids
-
-
-#TODO: переделать фильтр по объему двигателя (если меньше 999, то должен отсекать то что меньше 400)
