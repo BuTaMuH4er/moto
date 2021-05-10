@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from api.model import Motocycle, BrandsMotocycle
+from sqlalchemy import and_
 from flask_sqlalchemy import SQLAlchemy
 
 #db = SQLAlchemy()
@@ -98,8 +99,12 @@ class show_by_engine(Resource):
 
     def get(self, size):
         result = dict()
-        if (size == '125') or (size == '400') or (size == '999'):
+        if size == '125':
             list_motocycles = Motocycle.query.filter(Motocycle.engine <= int(size)).all()
+        if size == '400':
+            list_motocycles = Motocycle.query.filter(and_(Motocycle.engine > 125, Motocycle.engine <= 400)).all()
+        if size == '999':
+            list_motocycles = Motocycle.query.filter(and_(Motocycle.engine > 400, Motocycle.engine <= 999)).all()
         if size == 'liter':
             list_motocycles = Motocycle.query.filter(Motocycle.engine > 999).all()
         for moto in list_motocycles:
@@ -123,5 +128,20 @@ class show_by_engine_type(Resource):
                 'brand_name': motocycle.brands.brand_name,
                 'model': motocycle.model,
                 'engine_type': motocycle.type_engine
+            }
+        return result
+
+
+class show_by_class_motocycle(Resource):
+
+    def get(self, cycle_type):
+        result = dict()
+        list_motocycle_class = Motocycle.query.distinct(Motocycle.cycle_class).all()
+        for moto in list_motocycle_class:
+            motocycle = Motocycle.query.filter_by(id=moto.id).first()
+            result[motocycle.id] = {
+                'brand_name' : motocycles.brands.brands_name,
+                'model' : motocycle.model,
+                'motocycle_class' : motocycle.cycle_class
             }
         return result

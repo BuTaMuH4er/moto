@@ -52,5 +52,5 @@ def engine_size(size=None):
 
 if __name__ == '__main__':
     #x = BrandsMotocycle.query.all()
-    #class_cycles()
-    engine_size(125)
+    class_cycles()
+    #engine_size(125)

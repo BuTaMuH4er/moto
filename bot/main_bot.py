@@ -15,6 +15,7 @@ if __name__ == '__main__':
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', logic.start_bot, pass_user_data=True))
+    dp.add_handler(CallbackQueryHandler(logic.clear_filter, pass_user_data=True, pattern='^' + 'filter_0' + '$'))
     dp.add_handler(CallbackQueryHandler(logic.brands, pass_user_data=True, pattern='^' + str(brand) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.next_brand, pass_user_data=True, pattern='^' + str(next) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.back_brand, pass_user_data=True, pattern='^' + str(back) + '$'))

@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 import re, requests
+from api.model import Motocycle
 
 BASE_URL = 'http://localhost:5000'
 
@@ -12,6 +13,8 @@ SELECT_BRAND = set()                #context.user_data['filter_by_brand']
 SELECT_GEAR = set()                 #context.user_data['selected_gear']
 SELECT_ENGINE_TYPE = set()          #context.user_data['engine_type']
 SELECT_ENGINE_SIZE = set()          #context.user_data['engine_size']
+#context.user_data['list_motos_class']
+
 
 def start_bot(update, context):
     #This function starts bot and call main keyboard
@@ -23,6 +26,7 @@ def start_bot(update, context):
                               )
     keyboard = main_keyboard()
     update.message.reply_text(f' Выберите необходимый тип фильтра ', reply_markup=InlineKeyboardMarkup(keyboard))
+    context.user_data['list_motos_class'] = [i.cycle_class for i in (Motocycle.query.distinct(Motocycle.cycle_class).all())] #необходимо для генерации кнопок из списка существующих классов мотоциклов на момент запуска бота
 
 
 def main_keyboard():
@@ -34,11 +38,18 @@ def main_keyboard():
     year_birth = InlineKeyboardButton('год выпуска', callback_data=str(birth_year))
     type_gear = InlineKeyboardButton('тип передачи', callback_data=str(gear_type))
     start_search = InlineKeyboardButton('поиск', callback_data=str(search))
+    clear_filter = InlineKeyboardButton('сбросить фильтры', callback_data='filter_0')
     keyboard.append([brands, type_engine])
     keyboard.append([motocycle_class, year_birth, type_gear])
-    keyboard.append([start_search])
+    keyboard.append([start_search, clear_filter])
     return keyboard
 
+
+def clear_filter(update, context):
+    context.user_data['selected_gear'] = SELECT_GEAR.clear()
+    context.user_data['engine_size'] = SELECT_ENGINE_SIZE.clear()
+    context.user_data['engine_type'] = SELECT_ENGINE_TYPE.clear()
+    context.user_data['filter_by_brand'] = SELECT_BRAND.clear()
 
 def brands(update, context):
     keyboard = brands_nav(update, context)
@@ -195,13 +206,26 @@ def selected_gear_type(update, context):
         SELECT_GEAR.add(query['data'])
     context.user_data['selected_gear'] = SELECT_GEAR
 
+#навигацию надо сделать относитель одного класса в списке, возвращать его индекс и уже от него плясать по списку(+3 или -3)
+def moto_class_buttons(update, context, motos_class = None):
+    buttons_row = []
+    motocycle_class = context.user_data['list_motos_class']
+    if motos_class == None:
+        for i in range(3):
+            print(motocycle_class[i])
+            buttons_row.append(InlineKeyboardButton(motocycle_class[i], callback_data=(f'class|{motocycle_class[i]}')))
+        print((buttons_row))
+        return buttons_row
+
+
 
 def moto_class(update, context):
     keyboard = []
-    sport = InlineKeyboardButton('sport', callback_data=str(f'sport'))
-    classiс = InlineKeyboardButton('classiс', callback_data=str(f'classiс'))
+
+    row = moto_class_buttons(update, context)
+    print(row)
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
-    keyboard.append([sport, classiс])
+    keyboard.append(row)
     keyboard.append([back_to_menu])
     query = update.callback_query
     return query.edit_message_text('class motocycle', reply_markup=InlineKeyboardMarkup(keyboard))
@@ -252,4 +276,4 @@ def filter_list(update, context):
     return list_ids
 
 
-#TODO: переделать фильтр по объему двигателя (если меньше 999, то должен отсекать то что меньше 400) и сделать кнопку сброса всех фильтров(иначе приходится перезапускать бота)
+#TODO: переделать фильтр по объему двигателя (если меньше 999, то должен отсекать то что меньше 400)
