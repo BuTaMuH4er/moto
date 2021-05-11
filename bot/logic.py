@@ -207,32 +207,37 @@ def selected_gear_type(update, context):
     context.user_data['selected_gear'] = SELECT_GEAR
 
 #навигацию надо сделать относитель одного класса в списке, возвращать его индекс и уже от него плясать по списку(+3 или -3)
-def moto_class_buttons(update, context, motos_class = None):
+def moto_class_buttons(update, context, class_index = None):
     buttons_row = []
     motocycle_class = context.user_data['list_motos_class']
-    if motos_class == None:
+    class_index = context.user_data['class_index']    #номер индекса при генерации кнопок
+    if class_index == None:
+        context.user_data['class_index'] = 0
         for i in range(3):
-            print(motocycle_class[i])
             buttons_row.append(InlineKeyboardButton(motocycle_class[i], callback_data=(f'class|{motocycle_class[i]}')))
-        print((buttons_row))
         return buttons_row
 
 
+def listing_moto_class(update, context):
+    query = update.callback_query
+    class_index = context.user_data['class_index']
+    selected_button = query['data']
+    if selected_button[0] == 'back_class_motocycle':
+        class_index -= 3
 
 def moto_class(update, context):
     keyboard = []
 
     row = moto_class_buttons(update, context)
-    print(row)
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
-    back_button = InlineKeyboardButton('<<назад', callback_data=str(back))
-    next_button = InlineKeyboardButton('вперед>>', callback_data=str(next))
+    back_button = InlineKeyboardButton('<<назад', callback_data='back_class_motocycle')
+    next_button = InlineKeyboardButton('вперед>>', callback_data='next_class_motocycle')
     start_search = InlineKeyboardButton('поиск', callback_data=str(search))
     keyboard.append(row)
     keyboard.append([back_button, start_search, next_button])
     keyboard.append([back_to_menu])
     query = update.callback_query
-    return query.edit_message_text('class motocycle', reply_markup=InlineKeyboardMarkup(keyboard))
+    return query.edit_message_text('Выберите класс мотоцикла.', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def filter_list(update, context):
@@ -278,3 +283,5 @@ def filter_list(update, context):
             list_ids = list_ids.intersection(list(filter))
     print(f'длина конечного списка после фильтров: {len(list_ids)}')
     return list_ids
+
+#вероятно необходимо в каждом подменю делать сброс конкретного фильтра
