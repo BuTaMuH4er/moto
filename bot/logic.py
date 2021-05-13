@@ -29,6 +29,7 @@ def start_bot(update, context):
     context.user_data['list_motos_class'] = [i.cycle_class for i in (Motocycle.query.distinct(Motocycle.cycle_class).all())] #необходимо для генерации кнопок из списка существующих классов мотоциклов на момент запуска бота
 
 
+
 def main_keyboard():
     #this function generate main keyboard with all filters
     keyboard = []
@@ -207,27 +208,42 @@ def selected_gear_type(update, context):
     context.user_data['selected_gear'] = SELECT_GEAR
 
 #навигацию надо сделать относитель одного класса в списке, возвращать его индекс и уже от него плясать по списку(+3 или -3)
-def moto_class_buttons(update, context, class_index = None):
+def moto_class_buttons(update, context):
     buttons_row = []
-    motocycle_class = context.user_data['list_motos_class']
-    class_index = context.user_data['class_index']    #номер индекса при генерации кнопок
-    if class_index == None:
+    try:
+        context.user_data['class_index']
+    except KeyError:
         context.user_data['class_index'] = 0
+    motocycle_class = context.user_data['list_motos_class']
+    if context.user_data['class_index'] == 0:
         for i in range(3):
             buttons_row.append(InlineKeyboardButton(motocycle_class[i], callback_data=(f'class|{motocycle_class[i]}')))
-        return buttons_row
+    else:
+        for i in range(class_index, class_index+3):
+            buttons_row.append(InlineKeyboardButton(motocycle_class[i], callback_data=(f'class|{motocycle_class[i]}')))
+    return buttons_row
 
 
 def listing_moto_class(update, context):
     query = update.callback_query
+    query.answer()
     class_index = context.user_data['class_index']
     selected_button = query['data']
     if selected_button[0] == 'back_class_motocycle':
         class_index -= 3
+        if class_index < 0:
+            class_index = 0
+        context.user_data['class_index'] = class_index
+    if selected_button[0] == 'next_class_motocycle':
+        class_index += 3
+        if class_index < len(context.user_data['list_motos_class']):
+            class_index = 0
+    context.user_data['class_index'] = class_index
+    moto_class_buttons(update, context)
+
 
 def moto_class(update, context):
     keyboard = []
-
     row = moto_class_buttons(update, context)
     back_to_menu = InlineKeyboardButton('назад к меню', callback_data=str(back_menu))
     back_button = InlineKeyboardButton('<<назад', callback_data='back_class_motocycle')
