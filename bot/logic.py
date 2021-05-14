@@ -207,7 +207,7 @@ def selected_gear_type(update, context):
         SELECT_GEAR.add(query['data'])
     context.user_data['selected_gear'] = SELECT_GEAR
 
-#навигацию надо сделать относитель одного класса в списке, возвращать его индекс и уже от него плясать по списку(+3 или -3)
+
 def moto_class_buttons(update, context):
     buttons_row = []
     try:
@@ -219,6 +219,7 @@ def moto_class_buttons(update, context):
         for i in range(3):
             buttons_row.append(InlineKeyboardButton(motocycle_class[i], callback_data=(f'class|{motocycle_class[i]}')))
     else:
+        class_index = context.user_data['class_index']
         for i in range(class_index, class_index+3):
             buttons_row.append(InlineKeyboardButton(motocycle_class[i], callback_data=(f'class|{motocycle_class[i]}')))
     return buttons_row
@@ -229,17 +230,17 @@ def listing_moto_class(update, context):
     query.answer()
     class_index = context.user_data['class_index']
     selected_button = query['data']
-    if selected_button[0] == 'back_class_motocycle':
+    if 'back_class_motocycle' in selected_button:
         class_index -= 3
         if class_index < 0:
             class_index = 0
         context.user_data['class_index'] = class_index
-    if selected_button[0] == 'next_class_motocycle':
+    if 'next_class_motocycle' in selected_button:
         class_index += 3
-        if class_index < len(context.user_data['list_motos_class']):
-            class_index = 0
+        if class_index > len(context.user_data['list_motos_class']):
+            class_index = len(context.user_data['list_motos_class']) - 3
     context.user_data['class_index'] = class_index
-    moto_class_buttons(update, context)
+    moto_class(update, context)
 
 
 def moto_class(update, context):
