@@ -134,13 +134,14 @@ class show_by_engine_type(Resource):
 
 class show_by_class_motocycle(Resource):
 
-    def get(self, cycle_type):
+    def get(self, moto_class):
         result = dict()
-        list_motocycle_class = Motocycle.query.distinct(Motocycle.cycle_class).all()
+        list_motocycle_class = Motocycle.query.filter(Motocycle.cycle_class == moto_class).all()
+        print(list_motocycle_class)
         for moto in list_motocycle_class:
             motocycle = Motocycle.query.filter_by(id=moto.id).first()
             result[motocycle.id] = {
-                'brand_name' : motocycles.brands.brands_name,
+                'brand_name' : motocycle.brands.brand_name,
                 'model' : motocycle.model,
                 'motocycle_class' : motocycle.cycle_class
             }
