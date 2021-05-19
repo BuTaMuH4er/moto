@@ -313,10 +313,8 @@ def filter_list(update, context):
 
 
 def answer_count_motos(list_id):
-    print(list_id)
-    print(len(list_id))
     if len(list_id) == 0:
-        return f'В подборке нету мотоциклов.'
+        return f'Найдено: {len(list_id)}'
     return f'Найдено: {len(list_id)}'
 
 #вероятно необходимо в каждом подменю делать сброс конкретного фильтра
