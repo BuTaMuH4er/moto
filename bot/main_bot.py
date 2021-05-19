@@ -30,7 +30,7 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.listing_moto_class, pass_user_data=True, pattern='^' + 'back_class_motocycle|next_class_motocycle' + '$'))
 
 
-    dp.add_handler(CallbackQueryHandler(logic.button_filter, pass_user_data=True, pattern='^brand'))
+    dp.add_handler(CallbackQueryHandler(logic.button_filter, pass_user_data=True, pattern='^[brand|class]'))
 
 
 

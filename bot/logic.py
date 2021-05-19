@@ -13,6 +13,7 @@ SELECT_BRAND = set()                #context.user_data['filter_by_brand']
 SELECT_GEAR = set()                 #context.user_data['selected_gear']
 SELECT_ENGINE_TYPE = set()          #context.user_data['engine_type']
 SELECT_ENGINE_SIZE = set()          #context.user_data['engine_size']
+SELECT_CLASS_MOTOCYCLE = set()      #context.user_data['selected_motocycle_class']
 #context.user_data['list_motos_class']
 
 
@@ -25,7 +26,7 @@ def start_bot(update, context):
                               'Ты можешь посмотреть краткую справочную информацию по моделям мотоциклов. \n'
                               )
     keyboard = main_keyboard()
-    update.message.reply_text(f' Выберите необходимый тип фильтра ', reply_markup=InlineKeyboardMarkup(keyboard))
+    update.message.reply_text(f' Выберите необходимый тип фильтра. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
     context.user_data['list_motos_class'] = [i.cycle_class for i in (Motocycle.query.distinct(Motocycle.cycle_class).all())] #необходимо для генерации кнопок из списка существующих классов мотоциклов на момент запуска бота
 
 
@@ -51,11 +52,12 @@ def clear_filter(update, context):
     context.user_data['engine_size'] = SELECT_ENGINE_SIZE.clear()
     context.user_data['engine_type'] = SELECT_ENGINE_TYPE.clear()
     context.user_data['filter_by_brand'] = SELECT_BRAND.clear()
+    context.user_data['selected_motocycle_class'] = SELECT_CLASS_MOTOCYCLE.clear()
 
 def brands(update, context):
     keyboard = brands_nav(update, context)
     query = update.callback_query
-    query.edit_message_text(f'Выберите один из брендов', reply_markup=InlineKeyboardMarkup(keyboard))
+    query.edit_message_text(f'Выберите один из брендов. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def brands_nav(update, context):
@@ -126,11 +128,11 @@ def back_brand(update, context):
 
 def new_keyboard(update, context, keyboard):
     query = update.callback_query
-    return query.edit_message_text(f'Выберите один из брендов', reply_markup=InlineKeyboardMarkup(keyboard))
+    return query.edit_message_text(f'Выберите один из брендов. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def button_filter(update, context):
-    #function add to user_data brand name when you choose brand in filter
+    #function add to user_data brand name, motocycle class when you choose brand in filter
     query = update.callback_query
     selected_button = query['data'].split('|')
     if selected_button[0] == 'brand':
@@ -138,7 +140,13 @@ def button_filter(update, context):
             SELECT_BRAND.remove(selected_button[1])
         else:
             SELECT_BRAND.add(selected_button[1])
+    if selected_button[0] == 'class':
+        if selected_button[1] in SELECT_CLASS_MOTOCYCLE:
+            SELECT_CLASS_MOTOCYCLE.remove(selected_button[1])
+        else:
+            SELECT_CLASS_MOTOCYCLE.add(selected_button[1])
     context.user_data['filter_by_brand'] = SELECT_BRAND
+    context.user_data['selected_motocycle_class'] = SELECT_CLASS_MOTOCYCLE
 
 
 def type_engine(update, context):
@@ -156,7 +164,7 @@ def type_engine(update, context):
     keyboard.append([less_125, less_400, less_999, more_liter])
     keyboard.append([start_search, back_to_menu])
     query = update.callback_query
-    return query.edit_message_text(f'Выберите тип двигателя и объем', reply_markup=InlineKeyboardMarkup(keyboard))
+    return query.edit_message_text(f'Выберите тип двигателя и объем. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def select_engine_size(update, context):
@@ -181,7 +189,7 @@ def backword_to_menu(update, context):
     #callback previous keyboard menu
     keyboard = main_keyboard()
     query = update.callback_query
-    return query.edit_message_text(f' Выберите необходимый тип фильтра ', reply_markup=InlineKeyboardMarkup(keyboard))
+    return query.edit_message_text(f' Выберите необходимый тип фильтра. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def gears_button(update, context):
@@ -195,7 +203,7 @@ def gears_button(update, context):
     keyboard.append([shaft_button, chain_button, belt_button])
     keyboard.append([start_search, back_to_menu])
     query = update.callback_query
-    query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
+    query.edit_message_text(f'Выберите тип передачи. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
     #return query.edit_message_text(f'Выберите тип передачи', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
@@ -254,45 +262,47 @@ def moto_class(update, context):
     keyboard.append([back_button, start_search, next_button])
     keyboard.append([back_to_menu])
     query = update.callback_query
-    return query.edit_message_text('Выберите класс мотоцикла.', reply_markup=InlineKeyboardMarkup(keyboard))
+    return query.edit_message_text(f'Выберите класс мотоцикла. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def filter_list(update, context):
     list_ids = []
     # возвращает обратно множество id мотоциклов для дальнейшей фильтрации
-    print(f'ПОИСК нажат')
-    print(f'Проверить контекст')
-    #print(f'filter_list по передаче {context.user_data["selected_gear"]}')
-    #print(f'filter_list по бренду {context.user_data["filter_by_brand"]}')
-    print(f'фильтр по типу двигателя {context.user_data["engine_type"]}')
-    print(f'фильтр по кубатуре {context.user_data["engine_size"]}')
+
     filter_by_brand = set()
     filter_by_gear = set()
     filter_by_engine_type = set()
     filter_by_engine_size = set()
-    if context.user_data['filter_by_brand']:
+    filter_by_motocycle_class = set()
+
+    try:
         dict_brands = requests.get(BASE_URL + '/brands').json()
         for brand in context.user_data['filter_by_brand']:
             brand_id = dict_brands[brand]
             for i in list(requests.get(BASE_URL + '/by_brand/' + str(brand_id)).json().keys()) : filter_by_brand.add(i)
-        print(f'Длина списка по маркам {len(filter_by_brand)}')
+    except KeyError: pass
 
-    if context.user_data['selected_gear']:
+    try:
         for gear_type in context.user_data['selected_gear']:
             for i in list(requests.get(BASE_URL + '/by_gear_type/' + str(gear_type)).json().keys()) : filter_by_gear.add(i)
-        print(f'Длина списка по передачам {len(filter_by_gear)}')
+    except KeyError: pass
 
-    if context.user_data['engine_type']:
+    try:
         for engine in context.user_data['engine_type']:
-            for i in list(requests.get(BASE_URL + '/engine_type/' + str(engine)).json().keys()) : filter_by_engine_type.add(i)
-        print(f'Длина списка типу впрыска {len(filter_by_engine_type)}')
+            for i in list(requests.get(BASE_URL + '/engine_type/' + str(engine)).json().keys()): filter_by_engine_type.add(i)
+    except KeyError: pass
 
-    if context.user_data['engine_size']:
+    try:
         for engine in context.user_data['engine_size']:
-            for i in list(requests.get(BASE_URL + '/engine/' + str(engine)).json().keys()) : filter_by_engine_size.add(i)
-        print(f'Длина списка кубатуре {len(filter_by_engine_size)}')
+            for i in list(requests.get(BASE_URL + '/engine/' + str(engine)).json().keys()): filter_by_engine_size.add(i)
+    except KeyError: pass
 
-    filters = [filter_by_engine_type, filter_by_engine_size, filter_by_gear, filter_by_brand]
+    try:
+        for motocycle_class in context.user_data['selected_motocycle_class']:
+            for i in list(requests.get(BASE_URL + '/by_moto_class/' + str(motocycle_class)).json().keys()) : filter_by_motocycle_class.add(i)
+    except KeyError: pass
+
+    filters = [filter_by_engine_type, filter_by_engine_size, filter_by_gear, filter_by_brand, filter_by_motocycle_class]
     for filter in filters:
         if len(list_ids) == 0:
             list_ids = filter
@@ -300,5 +310,13 @@ def filter_list(update, context):
             list_ids = list_ids.intersection(list(filter))
     print(f'длина конечного списка после фильтров: {len(list_ids)}')
     return list_ids
+
+
+def answer_count_motos(list_id):
+    print(list_id)
+    print(len(list_id))
+    if len(list_id) == 0:
+        return f'В подборке нету мотоциклов.'
+    return f'Найдено: {len(list_id)}'
 
 #вероятно необходимо в каждом подменю делать сброс конкретного фильтра
