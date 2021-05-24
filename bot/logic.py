@@ -48,11 +48,18 @@ def main_keyboard():
 
 
 def clear_filter(update, context):
-    context.user_data['selected_gear'] = SELECT_GEAR.clear()
-    context.user_data['engine_size'] = SELECT_ENGINE_SIZE.clear()
-    context.user_data['engine_type'] = SELECT_ENGINE_TYPE.clear()
-    context.user_data['filter_by_brand'] = SELECT_BRAND.clear()
-    context.user_data['selected_motocycle_class'] = SELECT_CLASS_MOTOCYCLE.clear()
+    SELECT_BRAND = set()
+    SELECT_GEAR = set()
+    SELECT_ENGINE_TYPE = set()
+    SELECT_ENGINE_SIZE = set()
+    SELECT_CLASS_MOTOCYCLE = set()
+    context.user_data['selected_gear'] = SELECT_GEAR
+    context.user_data['engine_size'] = SELECT_ENGINE_SIZE
+    context.user_data['engine_type'] = SELECT_ENGINE_TYPE
+    context.user_data['filter_by_brand'] = SELECT_BRAND
+    context.user_data['selected_motocycle_class'] = SELECT_CLASS_MOTOCYCLE
+
+
 
 def brands(update, context):
     keyboard = brands_nav(update, context)
