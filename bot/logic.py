@@ -315,7 +315,8 @@ def filter_list(update, context):
             list_ids = filter
         elif len(filter) != 0:
             list_ids = list_ids.intersection(list(filter))
-    print(f'длина конечного списка после фильтров: {len(list_ids)}')
+   # print(f'длина конечного списка после фильтров: {len(list_ids)}')
+   # print(list_ids)
     return list_ids
 
 
@@ -324,4 +325,34 @@ def answer_count_motos(list_id):
         return f'Найдено: {len(list_id)}'
     return f'Найдено: {len(list_id)}'
 
-#вероятно необходимо в каждом подменю делать сброс конкретного фильтра
+
+def take_motocycle_dict(id):
+    motocycle_dict = requests.get(BASE_URL + '/by_id/' + str(id)).json()
+    return motocycle_dict
+
+
+def button_motocycle(motocycle_dict_properties):
+    motocycle_name_button = str((motocycle_dict_properties['brands'])['brand_name'] + motocycle_dict_properties['model'] + motocycle_dict_properties['year_birth'])
+    print(motocycle_name_button)
+    return motocycle_name_button
+
+
+def show_list_motocycles(update, context):
+    context.user_data['index_list_id'] = 0
+    list_id = list(filter_list(update, context))
+    print(f'Выводим список из поиска, должны быть кнопочки {list_id}')
+    #show keyboard with founded motocycles
+    keyboard = []
+    if len(list_id) >= 5 and (context.user_data['index_list_id']+5 <= len(list_id)):
+        try:
+            for i in range(context.user_data['index_list_id'], context.user_data['index_list_id']+5):
+                motocycle = take_motocycle_dict(list_id[i])
+                keyboard.append(InlineKeyboardButton(button_motocycle(motocycle), callback_data=f'{list_id[i]}'))
+        except KeyError: pass
+    if len(list_id) < 5:
+        for i in range(len(list_id)):
+            motocycle = take_motocycle_dict(list_id[i])
+            keyboard.append(InlineKeyboardButton(button_motocycle(motocycle), callback_data=f'{list_id[i]}'))
+    query = update.callback_query
+    print(keyboard)
+    return query.edit_message_text(f'Список', reply_markup=InlineKeyboardMarkup(keyboard))
