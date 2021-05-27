@@ -29,6 +29,7 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.select_engine_size, pass_user_data=True, pattern='^' + '125|400|999|liter' + '$'))
     dp.add_handler(CallbackQueryHandler(logic.selected_gear_type, pass_user_data=True, pattern='^' + 'shaft|belt|chain' + '$'))
     dp.add_handler(CallbackQueryHandler(logic.listing_moto_class, pass_user_data=True, pattern='^' + 'back_class_motocycle|next_class_motocycle' + '$'))
+    dp.add_handler(CallbackQueryHandler(logic.listing_moto_list, pass_user_data=True, pattern='^' + 'back_list_motocycle|next_list_motocycle' + '$'))
 
 
     dp.add_handler(CallbackQueryHandler(logic.button_filter, pass_user_data=True, pattern='^[brand|class]'))

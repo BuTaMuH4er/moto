@@ -332,27 +332,46 @@ def take_motocycle_dict(id):
 
 
 def button_motocycle(motocycle_dict_properties):
-    motocycle_name_button = str((motocycle_dict_properties['brands'])['brand_name'] + motocycle_dict_properties['model'] + motocycle_dict_properties['year_birth'])
+    motocycle_name_button = f'{(motocycle_dict_properties["brands"])["brand_name"]} {motocycle_dict_properties["model"]} {motocycle_dict_properties["year_birth"]}'
     print(motocycle_name_button)
     return motocycle_name_button
 
 
+def listing_moto_list(update, context):
+    query = update.callback_query
+    query.answer()
+    index_list_id = context.user_data['index_list_id']
+    selected_button = query['data']
+    if 'back_list_motocycle' in selected_button:
+        list_index -= 4
+        if list_index < 0:
+            list_index = 0
+        context.user_data['index_list_id'] = class_index
+    if 'next_list_motocycle' in selected_button:
+        list_index += 4
+        if list_index > len(context.user_data['list_motos_class']):
+            list_index = len(context.user_data['list_motos_class']) - 4
+    context.user_data['class_index'] = list_index
+    moto_class(update, context)
+
 def show_list_motocycles(update, context):
     context.user_data['index_list_id'] = 0
     list_id = list(filter_list(update, context))
-    print(f'Выводим список из поиска, должны быть кнопочки {list_id}')
     #show keyboard with founded motocycles
     keyboard = []
-    if len(list_id) >= 5 and (context.user_data['index_list_id']+5 <= len(list_id)):
+    if len(list_id) >= 4 and (context.user_data['index_list_id']+4 <= len(list_id)):
         try:
-            for i in range(context.user_data['index_list_id'], context.user_data['index_list_id']+5):
+            for i in range(context.user_data['index_list_id'], context.user_data['index_list_id']+4):
                 motocycle = take_motocycle_dict(list_id[i])
-                keyboard.append(InlineKeyboardButton(button_motocycle(motocycle), callback_data=f'{list_id[i]}'))
+                keyboard.append([InlineKeyboardButton(button_motocycle(motocycle), callback_data=f'{list_id[i]}')])
         except KeyError: pass
-    if len(list_id) < 5:
+    if len(list_id) < 4:
         for i in range(len(list_id)):
             motocycle = take_motocycle_dict(list_id[i])
-            keyboard.append(InlineKeyboardButton(button_motocycle(motocycle), callback_data=f'{list_id[i]}'))
+            keyboard.append([InlineKeyboardButton(button_motocycle(motocycle), callback_data=f'{list_id[i]}')])
     query = update.callback_query
-    print(keyboard)
-    return query.edit_message_text(f'Список', reply_markup=InlineKeyboardMarkup(keyboard))
+    back_to_menu = InlineKeyboardButton('меню', callback_data=str(back_menu))
+    back_button = InlineKeyboardButton('<<назад', callback_data='back_list_motocycle')
+    next_button = InlineKeyboardButton('вперед>>', callback_data='next_list_motocycle')
+    keyboard.append([back_button, back_to_menu, next_button])
+    return query.edit_message_text(f'Список найденных мотоциклов.', reply_markup=InlineKeyboardMarkup(keyboard))
