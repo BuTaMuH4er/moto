@@ -15,7 +15,7 @@ SELECT_ENGINE_TYPE = set()          #context.user_data['engine_type']
 SELECT_ENGINE_SIZE = set()          #context.user_data['engine_size']
 SELECT_CLASS_MOTOCYCLE = set()      #context.user_data['selected_motocycle_class']
 #context.user_data['list_motos_class']
-
+#context.user_data['index_list_id'] - index in list filtered ids founded motocycles
 
 def start_bot(update, context):
     #This function starts bot and call main keyboard
@@ -340,23 +340,27 @@ def button_motocycle(motocycle_dict_properties):
 def listing_moto_list(update, context):
     query = update.callback_query
     query.answer()
+    try:
+        context.user_data['index_list_id']
+    except KeyError:
+        context.user_data['index_list_id'] = 0
     index_list_id = context.user_data['index_list_id']
     selected_button = query['data']
     if 'back_list_motocycle' in selected_button:
-        list_index -= 4
-        if list_index < 0:
-            list_index = 0
-        context.user_data['index_list_id'] = class_index
+        index_list_id -= 4
+        if index_list_id < 0:
+            index_list_id = 0
+        context.user_data['index_list_id'] = index_list_id
     if 'next_list_motocycle' in selected_button:
-        list_index += 4
-        if list_index > len(context.user_data['list_motos_class']):
-            list_index = len(context.user_data['list_motos_class']) - 4
-    context.user_data['class_index'] = list_index
-    moto_class(update, context)
+        index_list_id += 4
+        if index_list_id > len(filter_list(update, context)):
+            index_list_id = len(filter_list(update, context)) - 4
+    context.user_data['index_list_id'] = index_list_id
+
 
 def show_list_motocycles(update, context):
-    context.user_data['index_list_id'] = 0
     list_id = list(filter_list(update, context))
+    listing_moto_list(update, context)
     #show keyboard with founded motocycles
     keyboard = []
     if len(list_id) >= 4 and (context.user_data['index_list_id']+4 <= len(list_id)):
