@@ -20,4 +20,7 @@ def create_app():
     api.add_resource(views.list_brands, '/brands')
     api.add_resource(views.show_by_brand, '/by_brand/<int:id_brand>')
     api.add_resource(views.show_by_gear, '/by_gear_type/<string:gear>')
+    api.add_resource(views.show_by_engine, '/engine/<string:size>')
+    api.add_resource(views.show_by_engine_type, '/engine_type/<string:engine_type>')
+    api.add_resource(views.show_by_class_motocycle, '/by_moto_class/<string:moto_class>')
     return app

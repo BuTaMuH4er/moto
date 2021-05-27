@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from api.model import Motocycle, BrandsMotocycle
+from sqlalchemy import and_
 from flask_sqlalchemy import SQLAlchemy
 
 #db = SQLAlchemy()
@@ -90,5 +91,58 @@ class show_by_gear(Resource):
                 'brand_name':moto.brands.brand_name,
                 'model':moto.model,
                 'gear_type':gear
+            }
+        return result
+
+
+class show_by_engine(Resource):
+
+    def get(self, size):
+        result = dict()
+        if size == '125':
+            list_motocycles = Motocycle.query.filter(Motocycle.engine <= int(size)).all()
+        if size == '400':
+            list_motocycles = Motocycle.query.filter(and_(Motocycle.engine > 125, Motocycle.engine <= 400)).all()
+        if size == '999':
+            list_motocycles = Motocycle.query.filter(and_(Motocycle.engine > 400, Motocycle.engine <= 999)).all()
+        if size == 'liter':
+            list_motocycles = Motocycle.query.filter(Motocycle.engine > 999).all()
+        for moto in list_motocycles:
+            motocycle = Motocycle.query.filter_by(id=moto.id).first()
+            result[motocycle.id] = {
+                'brand_name': motocycle.brands.brand_name,
+                'model': motocycle.model,
+                'engine': motocycle.engine
+            }
+        return result
+
+
+class show_by_engine_type(Resource):
+
+    def get(self, engine_type):
+        result = dict()
+        list_motocycles = Motocycle.query.filter(Motocycle.type_engine == engine_type).all()
+        for moto in list_motocycles:
+            motocycle = Motocycle.query.filter_by(id=moto.id).first()
+            result[motocycle.id] = {
+                'brand_name': motocycle.brands.brand_name,
+                'model': motocycle.model,
+                'engine_type': motocycle.type_engine
+            }
+        return result
+
+
+class show_by_class_motocycle(Resource):
+
+    def get(self, moto_class):
+        result = dict()
+        list_motocycle_class = Motocycle.query.filter(Motocycle.cycle_class == moto_class).all()
+        print(list_motocycle_class)
+        for moto in list_motocycle_class:
+            motocycle = Motocycle.query.filter_by(id=moto.id).first()
+            result[motocycle.id] = {
+                'brand_name' : motocycle.brands.brand_name,
+                'model' : motocycle.model,
+                'motocycle_class' : motocycle.cycle_class
             }
         return result
