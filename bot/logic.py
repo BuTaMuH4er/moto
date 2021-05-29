@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext
-import re, requests
+from collections import OrderedDict
+import requests
 from api.model import Motocycle
 
 BASE_URL = 'http://localhost:5000'
@@ -359,9 +359,9 @@ def listing_moto_list(update, context):
 
 
 def show_list_motocycles(update, context):
+    # show keyboard with founded motocycles
     list_id = list(filter_list(update, context))
     listing_moto_list(update, context)
-    #show keyboard with founded motocycles
     keyboard = []
     if len(list_id) >= 4 and (context.user_data['index_list_id']+4 <= len(list_id)):
         try:
@@ -379,3 +379,28 @@ def show_list_motocycles(update, context):
     next_button = InlineKeyboardButton('вперед>>', callback_data='next_list_motocycle')
     keyboard.append([back_button, back_to_menu, next_button])
     return query.edit_message_text(f'Список найденных мотоциклов.', reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+def show_motocycle(update, context):
+    message_cycle = OrderedDict()
+    query = update.callback_query
+    query.answer()
+    motocycle_json = take_motocycle_dict(query['data'])
+    message_cycle['Производитель'] = (motocycle_json.pop('brands'))['brand_name']
+    message_cycle['Модель'] = motocycle_json.pop('model')
+    message_cycle['Класс мотоцикл'] = motocycle_json.pop('cycle_class')
+    message_cycle['Годы выпуска'] = motocycle_json.pop('year_birth')
+    message_cycle['Объем двигателя'] = motocycle_json.pop('engine')
+    message_cycle['Тип впрыска'] = motocycle_json.pop('type_engine')
+    message_cycle['Количество цилиндров'] = motocycle_json.pop('cylinders')
+    message_cycle['Тип передачи'] = motocycle_json.pop('gear_type')
+    message_cycle['ABS'] = motocycle_json.pop('abs')
+    message_cycle['Мощность'] = motocycle_json.pop('horse_power')
+    message_cycle['Крутящий момент'] = motocycle_json.pop('torque')
+    motocycle_string = str()
+    for item in message_cycle:
+        motocycle_string += (f'{item} : {message_cycle[item]} \n')
+    update.callback_query.message.reply_text(f'{motocycle_string}')
+
+
+
