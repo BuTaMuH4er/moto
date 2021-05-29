@@ -1,6 +1,6 @@
 from api.config import API_KEY_BOT
 import logging, logic
-from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from datetime import datetime
 
 
@@ -23,7 +23,6 @@ if __name__ == '__main__':
     dp.add_handler(CallbackQueryHandler(logic.backword_to_menu, pass_user_data=True, pattern='^' + str(back_menu) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.gears_button, pass_user_data=True, pattern='^' + str(gear_type) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.moto_class, pass_user_data=True, pattern='^' + str(class_moto) + '$'))
-    #dp.add_handler(CallbackQueryHandler(logic.filter_list, pass_user_data=True, pattern='^' + str(search) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.show_list_motocycles, pass_user_data=True, pattern='^' + str(search) + '$'))
     dp.add_handler(CallbackQueryHandler(logic.select_type_engine, pass_user_data=True, pattern='^' + 'carburetor|injection' + '$'))
     dp.add_handler(CallbackQueryHandler(logic.select_engine_size, pass_user_data=True, pattern='^' + '125|400|999|liter' + '$'))
