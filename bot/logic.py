@@ -147,13 +147,13 @@ def button_filter(update, context):
             SELECT_BRAND.remove(selected_button[1])
         else:
             SELECT_BRAND.add(selected_button[1])
+        context.user_data['filter_by_brand'] = SELECT_BRAND
     if selected_button[0] == 'class':
         if selected_button[1] in SELECT_CLASS_MOTOCYCLE:
             SELECT_CLASS_MOTOCYCLE.remove(selected_button[1])
         else:
             SELECT_CLASS_MOTOCYCLE.add(selected_button[1])
-    context.user_data['filter_by_brand'] = SELECT_BRAND
-    context.user_data['selected_motocycle_class'] = SELECT_CLASS_MOTOCYCLE
+        context.user_data['selected_motocycle_class'] = SELECT_CLASS_MOTOCYCLE
 
 
 def type_engine(update, context):
@@ -286,27 +286,32 @@ def filter_list(update, context):
         dict_brands = requests.get(BASE_URL + '/brands').json()
         for brand in context.user_data['filter_by_brand']:
             brand_id = dict_brands[brand]
-            for i in list(requests.get(BASE_URL + '/by_brand/' + str(brand_id)).json().keys()) : filter_by_brand.add(i)
+            for i in list(requests.get(BASE_URL + '/by_brand/' + str(brand_id)).json().keys()):filter_by_brand.add(i)
+        print(f'Выбран фильтр по брендам')
     except KeyError: pass
 
     try:
         for gear_type in context.user_data['selected_gear']:
-            for i in list(requests.get(BASE_URL + '/by_gear_type/' + str(gear_type)).json().keys()) : filter_by_gear.add(i)
+            for i in list(requests.get(BASE_URL + '/by_gear_type/' + str(gear_type)).json().keys()):filter_by_gear.add(i)
+        print(f'Выбран фильтр по типу передачи')
     except KeyError: pass
 
     try:
         for engine in context.user_data['engine_type']:
-            for i in list(requests.get(BASE_URL + '/engine_type/' + str(engine)).json().keys()): filter_by_engine_type.add(i)
+            for i in list(requests.get(BASE_URL + '/engine_type/' + str(engine)).json().keys()):filter_by_engine_type.add(i)
+        print(f'Выбран фильтр по типу двигателя')
     except KeyError: pass
 
     try:
         for engine in context.user_data['engine_size']:
-            for i in list(requests.get(BASE_URL + '/engine/' + str(engine)).json().keys()): filter_by_engine_size.add(i)
+            for i in list(requests.get(BASE_URL + '/engine/' + str(engine)).json().keys()):filter_by_engine_size.add(i)
+        print(f'Выбран фильтр по объему двигателя')
     except KeyError: pass
 
     try:
         for motocycle_class in context.user_data['selected_motocycle_class']:
-            for i in list(requests.get(BASE_URL + '/by_moto_class/' + str(motocycle_class)).json().keys()) : filter_by_motocycle_class.add(i)
+            for i in list(requests.get(BASE_URL + '/by_moto_class/' + str(motocycle_class)).json().keys()):filter_by_motocycle_class.add(i)
+        print(f'Выбран фильтр по классу мотоцикла')
     except KeyError: pass
 
     filters = [filter_by_engine_type, filter_by_engine_size, filter_by_gear, filter_by_brand, filter_by_motocycle_class]
@@ -315,8 +320,6 @@ def filter_list(update, context):
             list_ids = filter
         elif len(filter) != 0:
             list_ids = list_ids.intersection(list(filter))
-   # print(f'длина конечного списка после фильтров: {len(list_ids)}')
-   # print(list_ids)
     return list_ids
 
 
@@ -333,7 +336,6 @@ def take_motocycle_dict(id):
 
 def button_motocycle(motocycle_dict_properties):
     motocycle_name_button = f'{(motocycle_dict_properties["brands"])["brand_name"]} {motocycle_dict_properties["model"]} {motocycle_dict_properties["year_birth"]}'
-    print(motocycle_name_button)
     return motocycle_name_button
 
 
@@ -350,7 +352,6 @@ def listing_moto_list(update, context):
         index_list_id -= 4
         if index_list_id < 0:
             index_list_id = 0
-        context.user_data['index_list_id'] = index_list_id
     if 'next_list_motocycle' in selected_button:
         index_list_id += 4
         if index_list_id > len(filter_list(update, context)):
