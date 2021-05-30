@@ -28,6 +28,7 @@ def start_bot(update, context):
     keyboard = main_keyboard()
     update.message.reply_text(f' Выберите необходимый тип фильтра. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
     context.user_data['list_motos_class'] = [i.cycle_class for i in (Motocycle.query.distinct(Motocycle.cycle_class).all())] #необходимо для генерации кнопок из списка существующих классов мотоциклов на момент запуска бота
+    clear_filter
 
 
 
@@ -148,6 +149,7 @@ def button_filter(update, context):
         else:
             SELECT_BRAND.add(selected_button[1])
         context.user_data['filter_by_brand'] = SELECT_BRAND
+        print(SELECT_BRAND)
     if selected_button[0] == 'class':
         if selected_button[1] in SELECT_CLASS_MOTOCYCLE:
             SELECT_CLASS_MOTOCYCLE.remove(selected_button[1])
@@ -364,7 +366,8 @@ def show_list_motocycles(update, context):
     list_id = list(filter_list(update, context))
     listing_moto_list(update, context)
     keyboard = []
-    if len(list_id) >= 4 and (context.user_data['index_list_id']+4 <= len(list_id)):
+    #if len(list_id) >= 4 and (context.user_data['index_list_id']+4 <= len(list_id)):
+    if len(list_id) >= 4:
         try:
             for i in range(context.user_data['index_list_id'], context.user_data['index_list_id']+4):
                 motocycle = take_motocycle_dict(list_id[i])
