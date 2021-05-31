@@ -28,7 +28,7 @@ def start_bot(update, context):
     keyboard = main_keyboard()
     update.message.reply_text(f' Выберите необходимый тип фильтра. {answer_count_motos(filter_list(update, context))}', reply_markup=InlineKeyboardMarkup(keyboard))
     context.user_data['list_motos_class'] = [i.cycle_class for i in (Motocycle.query.distinct(Motocycle.cycle_class).all())] #необходимо для генерации кнопок из списка существующих классов мотоциклов на момент запуска бота
-    clear_filter
+    clear_filter #при повторном старте сбрасываем все фильтры
 
 
 
@@ -289,31 +289,26 @@ def filter_list(update, context):
         for brand in context.user_data['filter_by_brand']:
             brand_id = dict_brands[brand]
             for i in list(requests.get(BASE_URL + '/by_brand/' + str(brand_id)).json().keys()):filter_by_brand.add(i)
-        print(f'Выбран фильтр по брендам')
     except KeyError: pass
 
     try:
         for gear_type in context.user_data['selected_gear']:
             for i in list(requests.get(BASE_URL + '/by_gear_type/' + str(gear_type)).json().keys()):filter_by_gear.add(i)
-        print(f'Выбран фильтр по типу передачи')
     except KeyError: pass
 
     try:
         for engine in context.user_data['engine_type']:
             for i in list(requests.get(BASE_URL + '/engine_type/' + str(engine)).json().keys()):filter_by_engine_type.add(i)
-        print(f'Выбран фильтр по типу двигателя')
     except KeyError: pass
 
     try:
         for engine in context.user_data['engine_size']:
             for i in list(requests.get(BASE_URL + '/engine/' + str(engine)).json().keys()):filter_by_engine_size.add(i)
-        print(f'Выбран фильтр по объему двигателя')
     except KeyError: pass
 
     try:
         for motocycle_class in context.user_data['selected_motocycle_class']:
             for i in list(requests.get(BASE_URL + '/by_moto_class/' + str(motocycle_class)).json().keys()):filter_by_motocycle_class.add(i)
-        print(f'Выбран фильтр по классу мотоцикла')
     except KeyError: pass
 
     filters = [filter_by_engine_type, filter_by_engine_size, filter_by_gear, filter_by_brand, filter_by_motocycle_class]
