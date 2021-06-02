@@ -14,10 +14,6 @@ parser.add_argument('engine', type=int)
 
 class motocycles_API(Resource):
 
-    #def get(self, id=None):
-    #    motocycle = Motocycle.query.order_by(Motocycle.brand_name.desc()).all()
-    #    return [moto.to_dict() for moto in motocycle]
-
     def get(self, id=None):
         if id is None:
             motocycles = Motocycle.query.all()
@@ -61,7 +57,7 @@ class show_by_brand(Resource):
 
     def get(self, id_brand):
         if isinstance(id_brand, list):
-            list_motos = Motocycle.query.filter_by(brand_name=(id_brand)).all()
+            list_motos = Motocycle.query.filter_by(brand_name=id_brand).all()
             result = dict()
             for moto in list_motos:
                 result[moto.id] = {

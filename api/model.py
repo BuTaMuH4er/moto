@@ -72,6 +72,27 @@ def create_brand(brand):
         return BrandsMotocycle.query.filter_by(brand_name=brand).first().id
 
 
+def del_duplicates():
+    #delete duplicates motocycles in "motocycles_info
+    a = Motocycle.query.all()
+    duplicate_id = []
+    for every in a:
+        bike = Motocycle.query.filter(Motocycle.model == every.model, Motocycle.year_birth == every.year_birth).all()
+        if len(bike) > 1:
+            for i in bike[1:]:
+                # print(i.id, i.model, i.year_birth)
+                duplicate_id.append(i.id)
+    for i in set(duplicate_id):
+        delete_cycle = Motocycle.query.filter_by(id=i).first()
+        db.session.delete(delete_cycle)
+        db.session.commit()
+
+
+
 if __name__ == '__main__':
     db.create_all()
+
+
+
+
 
